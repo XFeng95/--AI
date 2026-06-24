@@ -1,0 +1,460 @@
+; Copyright 2013 Samsung. ALL right reserved.
+
+[Version]
+Signature="$Windows NT$"
+Class=Printer
+Provider=%PROVIDER%
+CatalogFile = ssa5m.cat
+DriverVer=03/31/2015, 3.13.01.00
+ClassGUID={4D36E979-E325-11CE-BFC1-08002BE10318}
+DriverIsolation=2
+
+;
+; The Manufacturer section lists all of the manufacturers that we will
+; display in the Dialog box
+
+[Manufacturer]
+%PROVIDER% = MODEL,NTx86,NTx86.5.1,NTx86.6.0,NTamd64,NTamd64.6.0
+
+; Model section for Windows 2000 and XP
+[MODEL]
+"Samsung K2200 Series" = DRVINSTALL, LPTENUM\SamsungK2200_Series9856
+"Samsung K2200 Series" = DRVINSTALL, USBPRINT\SamsungK2200_Series9856
+"Samsung K2200 Series" = DRVINSTALL, WSDPRINT\SamsungK2200_Series9856
+
+[MODEL.NTx86]
+"Samsung K2200 Series" = DRVINSTALL, LPTENUM\SamsungK2200_Series9856
+"Samsung K2200 Series" = DRVINSTALL, USBPRINT\SamsungK2200_Series9856
+"Samsung K2200 Series" = DRVINSTALL, WSDPRINT\SamsungK2200_Series9856
+
+[MODEL.NTx86.5.1]
+"Samsung K2200 Series" = DRVINSTALL.NTx86.5.1, LPTENUM\SamsungK2200_Series9856
+"Samsung K2200 Series" = DRVINSTALL.NTx86.5.1, USBPRINT\SamsungK2200_Series9856
+"Samsung K2200 Series" = DRVINSTALL.NTx86.5.1, WSDPRINT\SamsungK2200_Series9856
+
+[MODEL.NTx86.6.0]
+"Samsung K2200 Series" = DRVINSTALL.NTx86.6.0, LPTENUM\SamsungK2200_Series9856
+"Samsung K2200 Series" = DRVINSTALL.NTx86.6.0, USBPRINT\SamsungK2200_Series9856
+"Samsung K2200 Series" = DRVINSTALL.NTx86.6.0, WSDPRINT\SamsungK2200_Series9856
+
+[MODEL.NTamd64]
+"Samsung K2200 Series" = DRVINSTALL, LPTENUM\SamsungK2200_Series9856
+"Samsung K2200 Series" = DRVINSTALL, USBPRINT\SamsungK2200_Series9856
+"Samsung K2200 Series" = DRVINSTALL, WSDPRINT\SamsungK2200_Series9856
+
+[MODEL.NTamd64.6.0]
+"Samsung K2200 Series" = DRVINSTALL.NTamd64.6.0, LPTENUM\SamsungK2200_Series9856
+"Samsung K2200 Series" = DRVINSTALL.NTamd64.6.0, USBPRINT\SamsungK2200_Series9856
+"Samsung K2200 Series" = DRVINSTALL.NTamd64.6.0, WSDPRINT\SamsungK2200_Series9856
+
+[OEM URLS]
+%PROVIDER% = "http://www.samsungelectronics.com/printer/support/index.html"
+
+;
+; Installer Sections
+;
+; These sections control file installation, and reference all files that
+; need to be copied. If the section name will be assumed to be the driver
+; file, unless there is an explicit DriverFile section listed.
+;
+
+; Installation section for Win2000 and XP
+[DRVINSTALL]
+CopyFiles=DRVFILES,LANGMONFILES,COINSTFILES,PRPROCFILES,LIVEUPDATE,BUYSUPPLIES,SPEEDLAUNCHER
+DataSection=DRVCONFIG
+DataFile=ssa5mpp.dll
+
+[DRVINSTALL.NTx86.5.1]
+CopyFiles=DRVFILES,LANGMONFILES,COINSTFILES,PRPROCFILES,LIVEUPDATE,BUYSUPPLIES,SPEEDLAUNCHER
+DataSection=DRVCONFIG
+DataFile=ssa5mpp.dll
+
+[DRVINSTALL.NTx86.6.0]
+CopyFiles=DRVFILES,LANGMONFILES,COINSTFILES,PRPROCFILES,LIVEUPDATE,BUYSUPPLIES,SPEEDLAUNCHER
+DataSection=DRVCONFIG
+DataFile=ssa5mpp.dll
+AddReg = DRVINSTALL.NTx86.6.0.AddReg
+
+[DRVINSTALL.NTx86.6.0.AddReg]
+HKLM,"SOFTWARE\SSPrint","InstalledBuySupplies",0x00010001,1
+HKLM,"SOFTWARE\Microsoft\Internet Explorer\Low Rights\ElevationPolicy\%GUIDSM%",AppName,0x00000000,ssa5msm.exe
+HKLM,"SOFTWARE\Microsoft\Internet Explorer\Low Rights\ElevationPolicy\%GUIDSM%",AppPath,0x00000000,"%51%\drivers\w32x86\3"
+HKLM,"SOFTWARE\Microsoft\Internet Explorer\Low Rights\ElevationPolicy\%GUIDSM%",Policy,0x00010001,3
+
+HKLM,"SOFTWARE\Microsoft\Internet Explorer\Low Rights\ElevationPolicy\%GUIDEI%",AppName,0x00000000,ssa5mei.exe
+HKLM,"SOFTWARE\Microsoft\Internet Explorer\Low Rights\ElevationPolicy\%GUIDEI%",AppPath,0x00000000,"%51%\drivers\w32x86\3"
+HKLM,"SOFTWARE\Microsoft\Internet Explorer\Low Rights\ElevationPolicy\%GUIDEI%",Policy,0x00010001,3
+
+HKLM,"SOFTWARE\Microsoft\Internet Explorer\Low Rights\ElevationPolicy\%GUIDEU%",AppName,0x00000000,ssa5meu.exe
+HKLM,"SOFTWARE\Microsoft\Internet Explorer\Low Rights\ElevationPolicy\%GUIDEU%",AppPath,0x00000000,"%51%\drivers\w32x86\3"
+HKLM,"SOFTWARE\Microsoft\Internet Explorer\Low Rights\ElevationPolicy\%GUIDEU%",Policy,0x00010001,3
+
+HKLM,"SOFTWARE\Microsoft\Internet Explorer\Low Rights\ElevationPolicy\%GUIDLPC%",AppName,0x00000000,ssa5mlpc.exe
+HKLM,"SOFTWARE\Microsoft\Internet Explorer\Low Rights\ElevationPolicy\%GUIDLPC%",AppPath,0x00000000,"%51%\drivers\w32x86\3"
+HKLM,"SOFTWARE\Microsoft\Internet Explorer\Low Rights\ElevationPolicy\%GUIDLPC%",Policy,0x00010001,3
+
+[DRVINSTALL.NTamd64.6.0]
+CopyFiles=DRVFILES,LANGMONFILES,COINSTFILES,PRPROCFILES,LIVEUPDATE,BUYSUPPLIES,SPEEDLAUNCHER
+DataSection=DRVCONFIG
+DataFile=ssa5mpp.dll
+AddReg = DRVINSTALL.NTamd64.6.0.AddReg
+
+[DRVINSTALL.NTamd64.6.0.AddReg]
+HKLM,"SOFTWARE\SSPrint","InstalledBuySupplies",0x00010001,1
+HKLM,"SOFTWARE\Microsoft\Internet Explorer\Low Rights\ElevationPolicy\%GUIDSM%",AppName,0x00000000,ssa5msm.exe
+HKLM,"SOFTWARE\Microsoft\Internet Explorer\Low Rights\ElevationPolicy\%GUIDSM%",AppPath,0x00000000,"%51%\drivers\x64\3"
+HKLM,"SOFTWARE\Microsoft\Internet Explorer\Low Rights\ElevationPolicy\%GUIDSM%",Policy,0x00010001,3
+
+
+HKLM,"SOFTWARE\Microsoft\Internet Explorer\Low Rights\ElevationPolicy\%GUIDEI%",AppName,0x00000000,ssa5mei.exe
+HKLM,"SOFTWARE\Microsoft\Internet Explorer\Low Rights\ElevationPolicy\%GUIDEI%",AppPath,0x00000000,"%51%\drivers\x64\3"
+HKLM,"SOFTWARE\Microsoft\Internet Explorer\Low Rights\ElevationPolicy\%GUIDEI%",Policy,0x00010001,3
+
+HKLM,"SOFTWARE\Microsoft\Internet Explorer\Low Rights\ElevationPolicy\%GUIDEU%",AppName,0x00000000,ssa5meu.exe
+HKLM,"SOFTWARE\Microsoft\Internet Explorer\Low Rights\ElevationPolicy\%GUIDEU%",AppPath,0x00000000,"%51%\drivers\x64\3"
+HKLM,"SOFTWARE\Microsoft\Internet Explorer\Low Rights\ElevationPolicy\%GUIDEU%",Policy,0x00010001,3
+
+HKLM,"SOFTWARE\Microsoft\Internet Explorer\Low Rights\ElevationPolicy\%GUIDLPC%",AppName,0x00000000,ssa5mlpc.exe
+HKLM,"SOFTWARE\Microsoft\Internet Explorer\Low Rights\ElevationPolicy\%GUIDLPC%",AppPath,0x00000000,"%51%\drivers\x64\3"
+HKLM,"SOFTWARE\Microsoft\Internet Explorer\Low Rights\ElevationPolicy\%GUIDLPC%",Policy,0x00010001,3
+
+
+;
+; Data Sections
+;
+; These sections contain data that is shared between devices.
+;
+[DRVCONFIG]
+DriverFile=ssa5m.dll
+ConfigFile=ssa5mdu.dll
+HelpFile=ssa5men.chm
+LanguageMonitor="ssa5m Langmon,ssa5mlm.dll"
+PrintProcessor="ssa5mPC,ssa5mpc.dll"
+
+[DRVINSTALL.CoInstallers]
+AddReg=COINST.AddReg
+CopyFiles=COINSTFILES
+
+[DRVINSTALL.NTx86.5.1.CoInstallers]
+AddReg=COINST.AddReg
+CopyFiles=COINSTFILES
+
+[DRVINSTALL.NTx86.6.0.CoInstallers]
+AddReg=COINST.AddReg
+CopyFiles=COINSTFILES
+
+[DRVINSTALL.NTamd64.6.0.CoInstallers]
+AddReg=COINST.AddReg
+CopyFiles=COINSTFILES
+
+[COINST.AddReg]
+HKR,,CoInstallers32,0x10000,"ssa5mci.dll,CoDeviceInstall"
+
+;------------------------------------------------------
+
+; Copy Sections
+;
+; Lists of files that are actually copied. These sections are referenced
+; from the installer sections, above. Only create a section if it contains
+; two or more files (if we only copy a single file, identify it in the
+; installer section, using the @filename notation)
+;
+[LANGMONFILES]
+ssa5mlm.dll,itdrvlm.dll
+
+[PRPROCFILES]
+ssa5mpc.dll,  itdrvpc.dll
+
+[COINSTFILES]
+ssa5mci.dll,  coinst.dll
+ssa5mci.exe,  coinst.exe
+
+[BUYSUPPLIES]
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; BuySupplies 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+SBuySupplies.exe
+
+[DRVFILES]
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Driver Core files and DLLs and Other files
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ssa5m.dll,    itdrv.dll
+ssa5mdu.dll,  itdrvdu.dll
+ssa5muc.dll,  itdrvuc.dll
+ssa5mur.dll,  itdrvur.dll
+ssa5mpp.dll,  itdrvpp.dll
+ssa5mf.xml,   itdrvf.xml
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; FrameBuffer files
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ssa5mlf.dll,  itdrvlf.dll
+ssa5mum.dll,  itdrvum.dll
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; DCU (Driver Configuration Utility)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ssa5mcu.dll,	itdrvcu.dll
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; SmartCMS files
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ssa5msc.cts
+ssa5msc.dll,  itdrvsc.dll
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Manual Duplex files
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ssa5mm1.bmp,  itdrvm1.bmp
+ssa5mm2.bmp,  itdrvm2.bmp
+ssa5mm3.bmp,  itdrvm3.bmp
+ssa5mm5.bmp,  itdrvm5.bmp
+ssa5mm6.bmp,  itdrvm6.bmp
+ssa5mm7.bmp,  itdrvm7.bmp
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Lite Status Monitor files
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ssa5msm.exe,  itdrvsm.exe
+ssa5mlpc.exe, itdrvlpc.exe
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Model dependent script files
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ssa5mc.xml
+ssa5mp.xml
+ssa5mpp.ver
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Bmp files
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ssa5mimg.cab
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; SNMP files
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ssa5mn.dll,   itdrvn.dll
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Eco Confirm files
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ssa5man.dll,   itdrvan.dll
+
+; Eco Virtual files
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ssa5mei.exe,  itdrvei.exe
+ssa5meu.exe,  itdrveu.exe
+ssa5mec.dll,  itdrvec.dll
+ssa5med.dll,  itdrved.dll
+ssa5meu.exe.config,  itdrveu.exe.config
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Localized XML files
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ssa5mstr.cab
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Help files
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ssa5mchm.cab
+ssa5men.chm,  itdrven.chm 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; EVPD Help files
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ssa5mech.cab 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; AMPV files
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ssa5mam.exe,  itdrvAM.exe
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Web Agreement files
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ssa5mdr.exe, itdrvDR.exe
+ssa5mua.dll, itdrvUA.dll		
+
+[SPEEDLAUNCHER]
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;     
+; EED speed launcher     
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;     
+eed_sl.exe, itdrveu.exe
+eed_ec.dll, itdrvec.dll
+eed_sl.exe.config, itdrveu.exe.config 
+
+[LIVEUPDATE]
+lusetup.exe,  setup.exe
+
+;
+; Color profiles go to the colors directory.  All other files to the the
+; system directory
+;
+
+[DestinationDirs]
+DefaultDestDir=66000
+LANGMONFILES=66002
+COINSTFILES = 66002
+PRPROCFILES=66001
+LIVEUPDATE=10,temp
+BUYSUPPLIES=66002
+SPEEDLAUNCHER=66002
+
+[SourceDisksNames]
+6 = %DISK_NAME%,,,"Common\help\eco"
+5 = %DISK_NAME%,,,"Common\help"
+4 = %DISK_NAME%,,,"Common\string"
+3 = %DISK_NAME%,,,"i386"
+2 = %DISK_NAME%,,,"Common"
+1 = %DISK_NAME%,,,
+
+[SourceDisksNames.amd64]
+6 = %DISK_NAME%,,,"Common\help\eco"
+5 = %DISK_NAME%,,,"Common\help"
+4 = %DISK_NAME%,,,"Common\string"
+3 = %DISK_NAME%,,,"amd64"
+2 = %DISK_NAME%,,,"Common"
+1 = %DISK_NAME%,,,
+
+[SourceDisksFiles]
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Driver Core files and DLLs and Other files
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+itdrv.dll       = 3
+itdrvdu.dll     = 3
+itdrvuc.dll     = 3
+itdrvur.dll     = 3
+itdrvpp.dll     = 2
+itdrvf.xml      = 2
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; FrameBuffer files
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+itdrvlf.dll     = 3
+itdrvum.dll  = 3
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; DCU (Driver Configuration Utility)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+itdrvcu.dll			= 3
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; SmartCMS files
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ssa5msc.cts    = 2
+itdrvsc.dll     = 3
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Manual Duplex files
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+itdrvm1.bmp     = 2
+itdrvm2.bmp     = 2
+itdrvm3.bmp     = 2
+itdrvm5.bmp     = 2
+itdrvm6.bmp     = 2
+itdrvm7.bmp     = 2
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Lite Status Monitor files
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+itdrvsm.exe     = 2
+itdrvlpc.exe    = 2
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Model dependent script files
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ssa5mc.xml	= 1
+ssa5mp.xml	= 1
+ssa5mpp.ver	= 1
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Bmp files
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ssa5mimg.cab  = 2
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; SNMP files
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+itdrvn.dll      = 3
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Confirm files
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+itdrvan.dll     = 3
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Eco Virtual files
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+itdrvei.exe			= 3
+itdrveu.exe			= 3
+itdrvec.dll			= 3
+itdrved.dll			= 3
+itdrveu.exe.config  = 2
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Localized XML files
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ssa5mstr.cab = 2
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Help files
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ssa5mchm.cab = 2
+itdrven.chm 	= 2
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Eco Virtual Help files
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ssa5mech.cab = 2
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; COINSTFILES
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+coinst.dll      = 3 
+coinst.exe      = 2
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; LANGMONFILES
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+itdrvlm.dll     = 3
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; PRPROCFILES
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+itdrvpc.dll     = 3
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; AMPV FILES
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+itdrvAM.exe     = 2
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Web Agreement files
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+itdrvDR.exe     = 3
+itdrvUA.dll		= 3
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Live Update
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+setup.exe       = 2
+
+; BuySupplies 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+SBuySupplies.exe = 3
+
+
+[PrinterPackageInstallation.x86]
+PackageAware=TRUE
+[PrinterPackageInstallation.amd64]
+PackageAware=TRUE
+
+[Strings]
+PROVIDER = "Samsung"
+DISK_NAME = "Samsung Printer Driver Installation CD"
+GUIDSM = "{C4F7CFC8-584C-497a-9613-8E8E5FFB6F1E}"
+GUIDEI = "{24D41323-08D5-451f-A066-638C6E15A532}"
+GUIDEU = "{D1F0B030-5D9B-4dda-BAD4-54F2D221B4BD}"
+GUIDLPC = "{625C4FB9-ACFB-4435-AEC1-160D04F7816F}"

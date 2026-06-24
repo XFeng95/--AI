@@ -1,0 +1,37 @@
+# Operating system metadata
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Office temporary and lock files
+~$*
+*.tmp
+*.temp
+
+# Editor and IDE settings
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Logs and local runtime files
+*.log
+*.pid
+*.pid.lock
+
+# Local environment and credentials
+.env
+.env.*
+!.env.example
+
+# Dependency and build output
+node_modules/
+dist/
+build/
+coverage/
+.cache/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
