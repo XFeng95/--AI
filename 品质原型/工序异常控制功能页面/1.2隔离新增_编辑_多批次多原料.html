@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>隔离新增编辑-多批次多原料</title>
+    <link rel="stylesheet" href="multi-batch-material.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-mark">Q</span>
+          <span>品质管理系统</span>
+        </div>
+        <div class="user">
+          <span>制单人：张三</span>
+          <span>创建时间：2026-07-06 09:30</span>
+        </div>
+      </header>
+
+      <main class="page">
+        <nav class="breadcrumb">
+          <a href="1.1成品隔离单列表页_多批次多原料.html">成品隔离单</a>
+          <span>&gt;</span>
+          <span>新增/编辑</span>
+        </nav>
+
+        <section class="page-title">
+          <h1>新增成品隔离单</h1>
+          <div class="title-extra">
+            <a class="btn" href="1.1成品隔离单列表页_多批次多原料.html">返回列表</a>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-header">
+            <div class="card-title">基础信息</div>
+            <span class="muted">单据编号自动生成：CGL+年月日+3位流水号</span>
+          </div>
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="field">
+                <label for="docNo">单据编号</label>
+                <input id="docNo" class="readonly" value="CGL20260706004" readonly />
+              </div>
+              <div class="field">
+                <label for="isolateDate"><span class="required">*</span>隔离日期</label>
+                <input id="isolateDate" type="date" value="2026-07-06" />
+              </div>
+              <div class="field">
+                <label for="shift"><span class="required">*</span>班次</label>
+                <select id="shift">
+                  <option value="">请选择</option>
+                  <option selected>早</option>
+                  <option>中</option>
+                  <option>晚</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="team"><span class="required">*</span>生产班组</label>
+                <input id="team" value="A组" />
+              </div>
+              <div class="field">
+                <label for="supervisor"><span class="required">*</span>当班生产主管</label>
+                <input id="supervisor" value="李主管" />
+              </div>
+              <div class="field">
+                <label for="workshop"><span class="required">*</span>车间</label>
+                <select id="workshop">
+                  <option value="">请选择</option>
+                  <option selected>一车间</option>
+                  <option>二车间</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="type"><span class="required">*</span>类型</label>
+                <select id="type">
+                  <option>处置类型</option>
+                  <option>记录类型</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="chemist"><span class="required">*</span>工序化验员</label>
+                <input id="chemist" value="张三" />
+              </div>
+              <div class="field">
+                <label for="exceptionNo">异常记录单号</label>
+                <input id="exceptionNo" class="readonly" placeholder="提交工序异常记录后反写" readonly />
+              </div>
+              <div class="field">
+                <label for="reworkNo">返工单号</label>
+                <input id="reworkNo" class="readonly" placeholder="发起返工后反写" readonly />
+              </div>
+              <div class="field wide">
+                <label for="productName"><span class="required">*</span>产品名称</label>
+                <select id="productName">
+                  <option value="">请选择</option>
+                  <option selected>红牛维生素功能饮料</option>
+                  <option>红牛维生素功能饮料（牛磺酸强化型）</option>
+                  <option>战马能量型维生素饮料</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-header">
+            <div class="card-title">发现信息</div>
+          </div>
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="field">
+                <label for="foundTime">发现时间</label>
+                <input id="foundTime" type="datetime-local" value="2026-07-06T08:45" />
+              </div>
+              <div class="field">
+                <label for="foundPerson">发现人员</label>
+                <input id="foundPerson" value="王五" />
+              </div>
+              <div class="field">
+                <label for="badLocation">发现不良品位置</label>
+                <select id="badLocation">
+                  <option>请选择</option>
+                  <option selected>灌装-查罐</option>
+                  <option>冷却机后</option>
+                  <option>包装</option>
+                  <option>码垛</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="foundBy">如何发现</label>
+                <select id="foundBy">
+                  <option>请选择</option>
+                  <option selected>人员岗位自检</option>
+                  <option>互检</option>
+                  <option>专检</option>
+                  <option>仪器报警</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="foundQty">发现数量</label>
+                <input id="foundQty" type="number" min="0" value="186" />
+              </div>
+              <div class="field">
+                <label for="belongProblem">所属问题</label>
+                <select id="belongProblem" title="取值来源：基础信息-不良类型管理">
+                  <option>请选择</option>
+                  <option selected>产品外观问题</option>
+                  <option>包装质量问题</option>
+                  <option>原料追溯问题</option>
+                  <option>设备过程问题</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="badCategory">不良大类</label>
+                <select id="badCategory" title="取值来源：基础信息-不良类型管理">
+                  <option>请选择</option>
+                  <option selected>外观不良</option>
+                  <option>包装不良</option>
+                  <option>批次异常</option>
+                  <option>过程异常</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="badType">不良类型</label>
+                <select id="badType" title="取值来源：基础信息-不良类型管理">
+                  <option>请选择</option>
+                  <option selected>罐身变形</option>
+                  <option>顶盖划伤</option>
+                  <option>纸皮破损</option>
+                  <option>喷码不清</option>
+                  <option>批号混用</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="verifyInfo">验证信息</label>
+                <select id="verifyInfo">
+                  <option>请选择</option>
+                  <option selected>已验证</option>
+                  <option>未验证</option>
+                  <option>已报警</option>
+                  <option>已剔除</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="line">生产线别</label>
+                <select id="line">
+                  <option>1线</option>
+                  <option>2线</option>
+                  <option selected>6线</option>
+                  <option>10线</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="sceneImage">现场图片</label>
+                <input id="sceneImage" placeholder="点击上传图片" />
+              </div>
+              <div class="field full">
+                <label for="badDesc">不良描述</label>
+                <textarea id="badDesc">多批次成品发现外观异常，需逐批隔离并登记对应原料问题。</textarea>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-header">
+            <div class="card-title">隔离信息与原料问题</div>
+            <div class="summary-strip">
+              <span class="summary-item">成品批次：<strong id="sumBatch">0</strong></span>
+              <span class="summary-item">原料问题：<strong id="sumIssue">0</strong></span>
+              <span class="summary-item">隔离总量：<strong id="sumQty">0</strong> 罐</span>
+              <span class="summary-item">缺失必填：<strong id="sumMissing">0</strong></span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="batch-toolbar">
+              <div class="muted">每个成品批次可录入多条对应原料问题；提交时校验批次基础字段和原料问题必填项。</div>
+              <button class="btn primary" type="button" id="addBatchBtn">新增成品批次</button>
+            </div>
+            <div id="batchContainer"></div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-header">
+            <div class="card-title">结论与备注</div>
+          </div>
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="field">
+                <label for="result"><span class="required">*</span>隔离结果</label>
+                <select id="result">
+                  <option selected>隔离中</option>
+                  <option>无需返工</option>
+                  <option>已发起返工</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="qaSign">工序化验员签字</label>
+                <input id="qaSign" class="readonly" value="张三" readonly />
+              </div>
+              <div class="field">
+                <label for="reviewSign">复核员签名</label>
+                <input id="reviewSign" class="readonly" placeholder="签字复核后写入" readonly />
+              </div>
+              <div class="field full">
+                <label for="remark">备注</label>
+                <textarea id="remark">支持同一隔离单内维护多批次，每个批次下可维护多条原料问题。</textarea>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer-bar">
+        <div id="message" class="message">暂存状态，支持继续补充批次和原料问题。</div>
+        <div class="title-extra">
+          <button class="btn" type="button" id="saveBtn">保存</button>
+          <button class="btn primary" type="button" id="submitBtn">签字提交</button>
+          <button class="btn" type="button" id="reviewBtn">签字复核</button>
+          <button class="btn" type="button" id="reworkBtn">发起返工</button>
+          <button class="btn" type="button" id="noReworkBtn">无需返工</button>
+          <button class="btn danger" type="button" id="deleteBtn">删除</button>
+        </div>
+      </footer>
+    </div>
+
+    <script>
+      let batchSeq = 0;
+      const batches = [
+        {
+          batchCode: "CP20260706001",
+          lotNo: "LOT-RB-070601",
+          boxNo: "BX0601-001~060",
+          isolateQty: 60,
+          isolateReason: "空罐变形，顶盖划伤",
+          conclusion: "隔离观察",
+          issues: [
+            { material: "空罐", materialBatch: "KG2026070108", supplier: "A供应商", problem: "罐身凹陷", qty: 42, level: "一般", action: "隔离待判" },
+            { material: "顶盖", materialBatch: "DG2026070203", supplier: "B供应商", problem: "外观划伤", qty: 18, level: "一般", action: "隔离待判" }
+          ]
+        },
+        {
+          batchCode: "CP20260706002",
+          lotNo: "LOT-RB-070602",
+          boxNo: "BX0602-001~080",
+          isolateQty: 80,
+          isolateReason: "纸皮破损，空罐疑似混批",
+          conclusion: "发起复核",
+          issues: [
+            { material: "纸皮", materialBatch: "ZP2026070305", supplier: "C供应商", problem: "外箱纸皮破损", qty: 32, level: "轻微", action: "更换包装" },
+            { material: "空罐", materialBatch: "KG2026070109", supplier: "A供应商", problem: "批号疑似混用", qty: 48, level: "严重", action: "暂停使用" }
+          ]
+        }
+      ];
+
+      const batchContainer = document.querySelector("#batchContainer");
+      const message = document.querySelector("#message");
+
+      function nextBatchId() {
+        batchSeq += 1;
+        return `batch-${Date.now()}-${batchSeq}`;
+      }
+
+      function createIssueRow(issue = {}) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>
+            <select data-field="material">
+              <option value="">请选择</option>
+              <option ${issue.material === "空罐" ? "selected" : ""}>空罐</option>
+              <option ${issue.material === "顶盖" ? "selected" : ""}>顶盖</option>
+              <option ${issue.material === "纸皮" ? "selected" : ""}>纸皮</option>
+              <option ${issue.material === "糖浆" ? "selected" : ""}>糖浆</option>
+            </select>
+          </td>
+          <td><input data-field="materialBatch" value="${issue.materialBatch || ""}" placeholder="原料批次" /></td>
+          <td><input data-field="supplier" value="${issue.supplier || ""}" placeholder="供应商" /></td>
+          <td><textarea data-field="problem" placeholder="问题描述">${issue.problem || ""}</textarea></td>
+          <td><input data-field="qty" type="number" min="0" value="${issue.qty || 0}" /></td>
+          <td>
+            <select data-field="level">
+              <option ${issue.level === "轻微" ? "selected" : ""}>轻微</option>
+              <option ${issue.level === "一般" || !issue.level ? "selected" : ""}>一般</option>
+              <option ${issue.level === "严重" ? "selected" : ""}>严重</option>
+            </select>
+          </td>
+          <td><input data-field="action" value="${issue.action || ""}" placeholder="处理措施" /></td>
+          <td><button class="btn ghost" type="button" data-action="removeIssue">删除</button></td>
+        `;
+        tr.querySelectorAll("input, select, textarea").forEach((field) => {
+          field.addEventListener("input", updateSummary);
+          field.addEventListener("change", updateSummary);
+        });
+        tr.querySelector("[data-action='removeIssue']").addEventListener("click", () => {
+          tr.remove();
+          updateSummary();
+        });
+        return tr;
+      }
+
+      function createBatchCard(batch = {}) {
+        const id = nextBatchId();
+        const card = document.createElement("div");
+        card.className = "batch-card";
+        card.dataset.batchId = id;
+        card.innerHTML = `
+          <div class="batch-head">
+            <div class="batch-title">
+              <span class="batch-index"></span>
+              <span>成品批次</span>
+              <span class="muted batch-brief"></span>
+            </div>
+            <div class="batch-actions">
+              <button class="btn" type="button" data-action="copyBatch">复制批次</button>
+              <button class="btn danger" type="button" data-action="removeBatch">删除批次</button>
+            </div>
+          </div>
+          <div class="batch-body">
+            <div class="form-grid">
+              <div class="field">
+                <label><span class="required">*</span>成品批次</label>
+                <input data-field="batchCode" value="${batch.batchCode || ""}" placeholder="请输入成品批次" />
+              </div>
+              <div class="field">
+                <label>成品批号</label>
+                <input data-field="lotNo" value="${batch.lotNo || ""}" placeholder="请输入成品批号" />
+              </div>
+              <div class="field">
+                <label>对应成品箱号</label>
+                <input data-field="boxNo" value="${batch.boxNo || ""}" placeholder="例如 BX001~BX080" />
+              </div>
+              <div class="field">
+                <label><span class="required">*</span>隔离数量</label>
+                <input data-field="isolateQty" type="number" min="0" value="${batch.isolateQty || 0}" />
+              </div>
+              <div class="field wide">
+                <label><span class="required">*</span>隔离原因</label>
+                <textarea data-field="isolateReason" placeholder="请输入隔离原因">${batch.isolateReason || ""}</textarea>
+              </div>
+              <div class="field wide">
+                <label><span class="required">*</span>结论</label>
+                <textarea data-field="conclusion" placeholder="请输入结论">${batch.conclusion || ""}</textarea>
+              </div>
+            </div>
+            <div class="sub-title">
+              <span>对应原料问题</span>
+              <button class="btn primary" type="button" data-action="addIssue">添加原料问题</button>
+            </div>
+            <div class="table-wrap">
+              <table class="editable-table">
+                <thead>
+                  <tr>
+                    <th style="width: 120px;">原料名称</th>
+                    <th style="width: 150px;">原料批次</th>
+                    <th style="width: 130px;">供应商</th>
+                    <th>问题描述</th>
+                    <th style="width: 90px;">影响数量</th>
+                    <th style="width: 90px;">问题等级</th>
+                    <th style="width: 150px;">处理措施</th>
+                    <th style="width: 70px;">操作</th>
+                  </tr>
+                </thead>
+                <tbody data-role="issueBody"></tbody>
+              </table>
+            </div>
+          </div>
+        `;
+
+        const issueBody = card.querySelector("[data-role='issueBody']");
+        const issues = batch.issues && batch.issues.length ? batch.issues : [{}];
+        issues.forEach((issue) => issueBody.appendChild(createIssueRow(issue)));
+
+        card.querySelectorAll("input, textarea").forEach((field) => {
+          field.addEventListener("input", updateSummary);
+        });
+        card.querySelector("[data-action='addIssue']").addEventListener("click", () => {
+          issueBody.appendChild(createIssueRow());
+          updateSummary();
+        });
+        card.querySelector("[data-action='removeBatch']").addEventListener("click", () => {
+          if (document.querySelectorAll(".batch-card").length === 1) {
+            showMessage("至少保留一个成品批次。", "error");
+            return;
+          }
+          card.remove();
+          updateSummary();
+        });
+        card.querySelector("[data-action='copyBatch']").addEventListener("click", () => {
+          const copied = readBatch(card);
+          copied.batchCode = `${copied.batchCode || "CP"}-COPY`;
+          batchContainer.insertBefore(createBatchCard(copied), card.nextSibling);
+          updateSummary();
+        });
+        return card;
+      }
+
+      function readBatch(card) {
+        const get = (field) => card.querySelector(`[data-field="${field}"]`).value.trim();
+        const issues = Array.from(card.querySelectorAll("[data-role='issueBody'] tr")).map((row) => ({
+          material: row.querySelector("[data-field='material']").value,
+          materialBatch: row.querySelector("[data-field='materialBatch']").value.trim(),
+          supplier: row.querySelector("[data-field='supplier']").value.trim(),
+          problem: row.querySelector("[data-field='problem']").value.trim(),
+          qty: Number(row.querySelector("[data-field='qty']").value || 0),
+          level: row.querySelector("[data-field='level']").value,
+          action: row.querySelector("[data-field='action']").value.trim()
+        }));
+        return {
+          batchCode: get("batchCode"),
+          lotNo: get("lotNo"),
+          boxNo: get("boxNo"),
+          isolateQty: Number(get("isolateQty") || 0),
+          isolateReason: get("isolateReason"),
+          conclusion: get("conclusion"),
+          issues
+        };
+      }
+
+      function validateBatch(batch) {
+        let missing = 0;
+        if (!batch.batchCode) missing += 1;
+        if (!batch.isolateQty) missing += 1;
+        if (!batch.isolateReason) missing += 1;
+        if (!batch.conclusion) missing += 1;
+        batch.issues.forEach((issue) => {
+          if (!issue.material) missing += 1;
+          if (!issue.materialBatch) missing += 1;
+          if (!issue.problem) missing += 1;
+          if (!issue.qty) missing += 1;
+        });
+        return missing;
+      }
+
+      function readAllBatches() {
+        return Array.from(document.querySelectorAll(".batch-card")).map(readBatch);
+      }
+
+      function updateSummary() {
+        const list = readAllBatches();
+        const issueCount = list.reduce((sum, item) => sum + item.issues.length, 0);
+        const totalQty = list.reduce((sum, item) => sum + Number(item.isolateQty || 0), 0);
+        const missing = list.reduce((sum, item) => sum + validateBatch(item), 0);
+        document.querySelector("#sumBatch").textContent = list.length;
+        document.querySelector("#sumIssue").textContent = issueCount;
+        document.querySelector("#sumQty").textContent = totalQty;
+        document.querySelector("#sumMissing").textContent = missing;
+        document.querySelectorAll(".batch-card").forEach((card, index) => {
+          const batch = readBatch(card);
+          card.querySelector(".batch-index").textContent = index + 1;
+          card.querySelector(".batch-brief").textContent = batch.batchCode ? `${batch.batchCode} / ${batch.isolateQty || 0} 罐` : "未填写批次";
+        });
+      }
+
+      function showMessage(text, type = "") {
+        message.textContent = text;
+        message.className = `message ${type}`;
+      }
+
+      function validateBase() {
+        const fields = ["isolateDate", "shift", "team", "supervisor", "workshop", "type", "chemist", "productName"];
+        return fields.filter((id) => !document.querySelector(`#${id}`).value.trim()).length;
+      }
+
+      function submitForm() {
+        const baseMissing = validateBase();
+        const batchMissing = readAllBatches().reduce((sum, item) => sum + validateBatch(item), 0);
+        if (baseMissing + batchMissing > 0) {
+          showMessage(`提交失败：仍有 ${baseMissing + batchMissing} 个必填项未完善。`, "error");
+          updateSummary();
+          return;
+        }
+        showMessage("原型动作：签字提交成功，单据状态变更为待审核。", "success");
+      }
+
+      document.querySelector("#addBatchBtn").addEventListener("click", () => {
+        batchContainer.appendChild(createBatchCard());
+        updateSummary();
+      });
+      document.querySelector("#saveBtn").addEventListener("click", () => {
+        showMessage("原型动作：已保存草稿。", "success");
+      });
+      document.querySelector("#submitBtn").addEventListener("click", submitForm);
+      document.querySelector("#reviewBtn").addEventListener("click", () => {
+        showMessage("原型动作：打开签字复核窗口，获取登录账号所属签名。", "success");
+      });
+      document.querySelector("#reworkBtn").addEventListener("click", () => {
+        document.querySelector("#result").value = "已发起返工";
+        document.querySelector("#reworkNo").value = "FG20260706001";
+        showMessage("原型动作：已发起返工，返工单号已反写。", "success");
+      });
+      document.querySelector("#noReworkBtn").addEventListener("click", () => {
+        document.querySelector("#result").value = "无需返工";
+        showMessage("原型动作：隔离结果已变更为无需返工。", "success");
+      });
+      document.querySelector("#deleteBtn").addEventListener("click", () => {
+        showMessage("原型动作：暂存单据可删除，删除时同步删除批次与原料问题明细。", "error");
+      });
+
+      batches.forEach((batch) => batchContainer.appendChild(createBatchCard(batch)));
+      updateSummary();
+    </script>
+  </body>
+</html>

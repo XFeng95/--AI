@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>成品返工单列表页-多批次多原料</title>
+    <link rel="stylesheet" href="multi-batch-material.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-mark">Q</span>
+          <span>品质管理系统</span>
+        </div>
+        <div class="user">
+          <span>返工负责人：赵六</span>
+          <span>2026-07-06</span>
+        </div>
+      </header>
+
+      <main class="page">
+        <nav class="breadcrumb">
+          <span>首页</span>
+          <span>&gt;</span>
+          <span>工序异常控制</span>
+          <span>&gt;</span>
+          <span>成品返工单</span>
+        </nav>
+
+        <section class="page-title">
+          <h1>成品返工单</h1>
+          <div class="title-extra">
+            <a class="btn primary" href="3.2返工新增页面_多批次多原料.html?source=CGL20260706003">由隔离单生成</a>
+            <button class="btn" type="button" id="exportBtn">勾选导出</button>
+          </div>
+        </section>
+
+        <section class="stats">
+          <div class="stat">
+            <div class="stat-label">返工中单据</div>
+            <div class="stat-value" id="runningCount">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">涉及成品批次</div>
+            <div class="stat-value" id="batchCount">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">原料问题数</div>
+            <div class="stat-value" id="materialIssueCount">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">返工总罐数</div>
+            <div class="stat-value" id="totalQty">0</div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-header">
+            <div class="card-title">查询</div>
+          </div>
+          <div class="card-body">
+            <div class="search-grid">
+              <div class="field">
+                <label for="reworkNo">返工编号</label>
+                <input id="reworkNo" placeholder="请输入返工编号" />
+              </div>
+              <div class="field">
+                <label for="sourceNo">来源隔离单号</label>
+                <input id="sourceNo" placeholder="请输入隔离单号" />
+              </div>
+              <div class="field">
+                <label for="productName">产品名称</label>
+                <select id="productName">
+                  <option value="">全部</option>
+                  <option>红牛维生素功能饮料</option>
+                  <option>红牛维生素功能饮料（牛磺酸强化型）</option>
+                  <option>战马能量型维生素饮料</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="line">生产线别</label>
+                <select id="line">
+                  <option value="">全部</option>
+                  <option>1线</option>
+                  <option>2线</option>
+                  <option>6线</option>
+                  <option>10线</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="status">单据状态</label>
+                <select id="status">
+                  <option value="">全部</option>
+                  <option>暂存</option>
+                  <option>待审核</option>
+                  <option>已审核</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="progress">返工进度</label>
+                <select id="progress">
+                  <option value="">全部</option>
+                  <option>待返工</option>
+                  <option>返工中</option>
+                  <option>返工完成</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="batchNo">返工批次/批号</label>
+                <input id="batchNo" placeholder="支持批次或批号查询" />
+              </div>
+              <div class="field">
+                <label for="materialName">涉及原料</label>
+                <select id="materialName">
+                  <option value="">全部</option>
+                  <option>空罐</option>
+                  <option>顶盖</option>
+                  <option>纸皮</option>
+                  <option>糖浆</option>
+                </select>
+              </div>
+            </div>
+            <div class="actions">
+              <button class="btn" type="button" id="resetBtn">重置</button>
+              <button class="btn primary" type="button" id="searchBtn">查询</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-header">
+            <div class="card-title">列表</div>
+            <div class="muted">默认按创建时间倒序排列；来源隔离单为“发起返工”生成</div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width: 130px;">返工编号</th>
+                  <th style="width: 130px;">来源隔离单</th>
+                  <th style="width: 190px;">产品名称</th>
+                  <th style="width: 84px;">线别</th>
+                  <th style="width: 122px;">返工日期</th>
+                  <th style="width: 84px;">批次数</th>
+                  <th style="width: 108px;">原料问题数</th>
+                  <th style="width: 108px;">返工总罐数</th>
+                  <th style="width: 154px;">涉及原料</th>
+                  <th>返工摘要</th>
+                  <th style="width: 92px;">返工进度</th>
+                  <th style="width: 86px;">单据状态</th>
+                  <th style="width: 168px;">操作</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody"></tbody>
+            </table>
+          </div>
+          <div class="pager">
+            <span id="recordInfo">共 0 条</span>
+            <span>第 1 / 1 页　每页 20 条</span>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      const records = [
+        {
+          reworkNo: "FG20260706001",
+          sourceNo: "CGL20260706003",
+          productName: "红牛维生素功能饮料",
+          line: "6线",
+          date: "2026-07-06",
+          batchCount: 3,
+          issueCount: 6,
+          totalQty: 186,
+          materials: ["空罐", "顶盖", "纸皮"],
+          batches: ["CP20260706001", "CP20260706002", "CP20260706003"],
+          summary: "由多批次成品隔离单发起返工，按批次处理空罐变形、顶盖划伤、纸皮破损。",
+          progress: "返工中",
+          status: "暂存"
+        },
+        {
+          reworkNo: "FG20260705004",
+          sourceNo: "CGL20260705006",
+          productName: "战马能量型维生素饮料",
+          line: "2线",
+          date: "2026-07-05",
+          batchCount: 4,
+          issueCount: 5,
+          totalQty: 248,
+          materials: ["顶盖", "纸皮"],
+          batches: ["CP20260705017", "CP20260705018", "CP20260705019", "CP20260705020"],
+          summary: "来源隔离单已审核，连续批次顶盖混用风险和外箱纸皮喷码不清需返工。",
+          progress: "待返工",
+          status: "待审核"
+        },
+        {
+          reworkNo: "FG20260703002",
+          sourceNo: "CGL20260703008",
+          productName: "红牛维生素功能饮料（牛磺酸强化型）",
+          line: "10线",
+          date: "2026-07-03",
+          batchCount: 2,
+          issueCount: 3,
+          totalQty: 96,
+          materials: ["空罐", "糖浆"],
+          batches: ["CP20260703011", "CP20260703012"],
+          summary: "两批成品已完成返工，问题罐剔除后重新装箱码垛。",
+          progress: "返工完成",
+          status: "已审核"
+        }
+      ];
+
+      const tableBody = document.querySelector("#tableBody");
+      const filters = {
+        reworkNo: document.querySelector("#reworkNo"),
+        sourceNo: document.querySelector("#sourceNo"),
+        productName: document.querySelector("#productName"),
+        line: document.querySelector("#line"),
+        status: document.querySelector("#status"),
+        progress: document.querySelector("#progress"),
+        batchNo: document.querySelector("#batchNo"),
+        materialName: document.querySelector("#materialName")
+      };
+
+      function getStatusClass(status) {
+        if (status === "暂存") return "draft";
+        if (status === "待审核") return "audit";
+        return "done";
+      }
+
+      function getProgressClass(progress) {
+        if (progress === "返工完成") return "done";
+        if (progress === "返工中") return "isolating";
+        return "audit";
+      }
+
+      function matchRecord(record) {
+        const batchNo = filters.batchNo.value.trim();
+        const materialName = filters.materialName.value;
+        return (
+          (!filters.reworkNo.value.trim() || record.reworkNo.includes(filters.reworkNo.value.trim())) &&
+          (!filters.sourceNo.value.trim() || record.sourceNo.includes(filters.sourceNo.value.trim())) &&
+          (!filters.productName.value || record.productName === filters.productName.value) &&
+          (!filters.line.value || record.line === filters.line.value) &&
+          (!filters.status.value || record.status === filters.status.value) &&
+          (!filters.progress.value || record.progress === filters.progress.value) &&
+          (!batchNo || record.batches.some((item) => item.includes(batchNo))) &&
+          (!materialName || record.materials.includes(materialName))
+        );
+      }
+
+      function render() {
+        const rows = records.filter(matchRecord);
+        tableBody.innerHTML = rows.map((record) => `
+          <tr>
+            <td>${record.reworkNo}</td>
+            <td><span class="tag warn">${record.sourceNo}</span></td>
+            <td>${record.productName}</td>
+            <td>${record.line}</td>
+            <td>${record.date}</td>
+            <td><span class="tag">${record.batchCount} 批</span></td>
+            <td><span class="tag warn">${record.issueCount} 条</span></td>
+            <td>${record.totalQty} 罐</td>
+            <td>${record.materials.map((item) => `<span class="tag gray">${item}</span>`).join("")}</td>
+            <td>${record.summary}</td>
+            <td><span class="status ${getProgressClass(record.progress)}">${record.progress}</span></td>
+            <td><span class="status ${getStatusClass(record.status)}">${record.status}</span></td>
+            <td>
+              <a class="btn ghost" href="3.2返工新增页面_多批次多原料.html?mode=edit&reworkNo=${record.reworkNo}&source=${record.sourceNo}">编辑</a>
+              <a class="btn ghost" href="3.2返工新增页面_多批次多原料.html?mode=view&reworkNo=${record.reworkNo}&source=${record.sourceNo}">详情</a>
+              <button class="btn ghost" type="button" onclick="alert('原型动作：生成返工报告')">报告</button>
+            </td>
+          </tr>
+        `).join("");
+        if (!rows.length) {
+          tableBody.innerHTML = `<tr><td colspan="13"><div class="empty">暂无匹配数据</div></td></tr>`;
+        }
+        document.querySelector("#recordInfo").textContent = `共 ${rows.length} 条`;
+        document.querySelector("#runningCount").textContent = rows.filter((item) => item.progress === "返工中").length;
+        document.querySelector("#batchCount").textContent = rows.reduce((sum, item) => sum + item.batchCount, 0);
+        document.querySelector("#materialIssueCount").textContent = rows.reduce((sum, item) => sum + item.issueCount, 0);
+        document.querySelector("#totalQty").textContent = rows.reduce((sum, item) => sum + item.totalQty, 0);
+      }
+
+      document.querySelector("#searchBtn").addEventListener("click", render);
+      document.querySelector("#resetBtn").addEventListener("click", () => {
+        Object.values(filters).forEach((field) => {
+          field.value = "";
+        });
+        render();
+      });
+      document.querySelector("#exportBtn").addEventListener("click", () => {
+        alert("原型动作：导出勾选返工单，包含来源隔离单、批次明细和原料问题明细。");
+      });
+
+      render();
+    </script>
+  </body>
+</html>
