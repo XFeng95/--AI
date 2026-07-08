@@ -75,10 +75,7 @@
               </div>
               <div class="field">
                 <label for="type"><span class="required">*</span>类型</label>
-                <select id="type">
-                  <option>处置类型</option>
-                  <option>记录类型</option>
-                </select>
+                <input id="type" class="readonly" value="处置类型" readonly />
               </div>
               <div class="field">
                 <label for="chemist"><span class="required">*</span>工序化验员</label>
@@ -141,37 +138,27 @@
               </div>
               <div class="field">
                 <label for="foundQty">发现数量</label>
-                <input id="foundQty" type="number" min="0" value="186" />
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <input id="foundQty" type="number" min="0" value="186" />
+                  <span class="muted">罐</span>
+                </div>
               </div>
               <div class="field">
                 <label for="belongProblem">所属问题</label>
                 <select id="belongProblem" title="取值来源：基础信息-不良类型管理">
-                  <option>请选择</option>
-                  <option selected>产品外观问题</option>
-                  <option>包装质量问题</option>
-                  <option>原料追溯问题</option>
-                  <option>设备过程问题</option>
+                  <option selected>请选取</option>
                 </select>
               </div>
               <div class="field">
                 <label for="badCategory">不良大类</label>
                 <select id="badCategory" title="取值来源：基础信息-不良类型管理">
-                  <option>请选择</option>
-                  <option selected>外观不良</option>
-                  <option>包装不良</option>
-                  <option>批次异常</option>
-                  <option>过程异常</option>
+                  <option selected>请选取</option>
                 </select>
               </div>
               <div class="field">
                 <label for="badType">不良类型</label>
                 <select id="badType" title="取值来源：基础信息-不良类型管理">
-                  <option>请选择</option>
-                  <option selected>罐身变形</option>
-                  <option>顶盖划伤</option>
-                  <option>纸皮破损</option>
-                  <option>喷码不清</option>
-                  <option>批号混用</option>
+                  <option selected>请选取</option>
                 </select>
               </div>
               <div class="field">
@@ -211,7 +198,7 @@
             <div class="summary-strip">
               <span class="summary-item">成品批次：<strong id="sumBatch">0</strong></span>
               <span class="summary-item">原料问题：<strong id="sumIssue">0</strong></span>
-              <span class="summary-item">隔离总量：<strong id="sumQty">0</strong> 罐</span>
+              <span class="summary-item">隔离总量：<strong id="sumQty">0</strong> 箱</span>
               <span class="summary-item">缺失必填：<strong id="sumMissing">0</strong></span>
             </div>
           </div>
@@ -266,6 +253,17 @@
           <button class="btn danger" type="button" id="deleteBtn">删除</button>
         </div>
       </footer>
+      <div id="boxModal" style="display:none;position:fixed;inset:0;z-index:20;background:rgba(15,23,42,0.35);align-items:center;justify-content:center;">
+        <div class="card" style="width:min(920px,90vw);max-height:80vh;overflow:auto;margin:0;">
+          <div class="card-header">
+            <div class="card-title">对应成品箱号</div>
+            <button class="btn ghost" type="button" id="closeBoxModal">关闭</button>
+          </div>
+          <div class="card-body">
+            <div id="boxModalContent"></div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script>
@@ -274,61 +272,252 @@
         {
           batchCode: "CP20260706001",
           lotNo: "LOT-RB-070601",
-          boxNo: "BX0601-001~060",
-          isolateQty: 60,
+          boxSerials: [{}],
+          isolateQty: 0,
           isolateReason: "空罐变形，顶盖划伤",
           conclusion: "隔离观察",
           issues: [
-            { material: "空罐", materialBatch: "KG2026070108", supplier: "A供应商", problem: "罐身凹陷", qty: 42, level: "一般", action: "隔离待判" },
-            { material: "顶盖", materialBatch: "DG2026070203", supplier: "B供应商", problem: "外观划伤", qty: 18, level: "一般", action: "隔离待判" }
+            { machineTime: "08:45", materialBatch: "KG2026070108", supplier: "A供应商", problem: "罐身凹陷" },
+            { machineTime: "09:10", materialBatch: "DG2026070203", supplier: "B供应商", problem: "外观划伤" }
           ]
         },
         {
           batchCode: "CP20260706002",
           lotNo: "LOT-RB-070602",
-          boxNo: "BX0602-001~080",
-          isolateQty: 80,
+          boxSerials: [{}],
+          isolateQty: 0,
           isolateReason: "纸皮破损，空罐疑似混批",
           conclusion: "发起复核",
           issues: [
-            { material: "纸皮", materialBatch: "ZP2026070305", supplier: "C供应商", problem: "外箱纸皮破损", qty: 32, level: "轻微", action: "更换包装" },
-            { material: "空罐", materialBatch: "KG2026070109", supplier: "A供应商", problem: "批号疑似混用", qty: 48, level: "严重", action: "暂停使用" }
+            { machineTime: "10:20", materialBatch: "ZP2026070305", supplier: "C供应商", problem: "外箱纸皮破损" },
+            { machineTime: "10:45", materialBatch: "KG2026070109", supplier: "A供应商", problem: "批号疑似混用" }
           ]
         }
       ];
 
       const batchContainer = document.querySelector("#batchContainer");
       const message = document.querySelector("#message");
+      const boxModal = document.querySelector("#boxModal");
+      const boxModalContent = document.querySelector("#boxModalContent");
+      let activeBoxCard = null;
 
       function nextBatchId() {
         batchSeq += 1;
         return `batch-${Date.now()}-${batchSeq}`;
       }
 
+      function getSerialCount(startValue, endValue) {
+        const start = Number(startValue || 0);
+        const end = Number(endValue || 0);
+        return end >= start ? end - start + 1 : 0;
+      }
+
+      function updateBatchQty(card) {
+        const total = Array.from(card.querySelectorAll("[data-role='serialBody'] tr")).reduce((sum, row) => {
+          const start = row.querySelector("[data-field='serialStart']").value;
+          const end = row.querySelector("[data-field='serialEnd']").value;
+          return sum + getSerialCount(start, end);
+        }, 0);
+        const qtyInput = card.querySelector("[data-field='isolateQty']");
+        qtyInput.value = total;
+      }
+
+      function getBoxSerialSummary(card) {
+        const rows = Array.from(card.querySelectorAll("[data-role='serialBody'] tr")).map((row, index) => {
+          const start = row.querySelector("[data-field='serialStart']").value;
+          const end = row.querySelector("[data-field='serialEnd']").value;
+          const qty = getSerialCount(start, end);
+          return { index: index + 1, start, end, qty };
+        }).filter((item) => item.start || item.end);
+        if (!rows.length) return "点击查看箱序列号";
+        return rows.map((item) => `${item.start || "-"}-${item.end || "-"}箱号`).join("；");
+      }
+
+      function openBoxModal(card) {
+        activeBoxCard = card;
+        const batch = readBatch(card);
+        const rows = Array.from(card.querySelectorAll("[data-role='serialBody'] tr")).map((row, index) => {
+          const start = row.querySelector("[data-field='serialStart']").value;
+          const end = row.querySelector("[data-field='serialEnd']").value;
+          const qty = getSerialCount(start, end);
+          return { index: index + 1, start, end, qty };
+        });
+        boxModalContent.innerHTML = `
+          <div class="muted" style="margin-bottom:10px;">成品批次：${batch.batchCode || "-"}　成品批号：${batch.lotNo || "-"}　隔离数量：${batch.isolateQty || 0} 箱</div>
+          <div class="table-wrap">
+            <table class="editable-table">
+              <thead>
+                <tr>
+                  <th style="width:80px;">序号</th>
+                  <th style="width:120px;">操作</th>
+                  <th><span class="required">*</span>箱序列号</th>
+                  <th style="width:120px;">隔离数量</th>
+                  <th style="width:90px;">单位</th>
+                </tr>
+              </thead>
+              <tbody data-role="modalSerialBody"></tbody>
+            </table>
+          </div>
+          <div class="actions">
+            <button class="btn" type="button" data-action="cancelBoxModal">取消</button>
+            <button class="btn primary" type="button" data-action="confirmBoxModal">确认</button>
+          </div>
+        `;
+        const modalBody = boxModalContent.querySelector("[data-role='modalSerialBody']");
+        const sourceRows = rows.length ? rows : [{ start: "", end: "" }];
+        sourceRows.forEach((item) => modalBody.appendChild(createModalSerialRow(item)));
+        updateModalSerialRows();
+        boxModalContent.querySelector("[data-action='cancelBoxModal']").addEventListener("click", closeBoxModal);
+        boxModalContent.querySelector("[data-action='confirmBoxModal']").addEventListener("click", confirmBoxModal);
+        boxModal.style.display = "flex";
+      }
+
+      function createModalSerialRow(serial = {}) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><input class="readonly" data-field="modalSerialNo" readonly /></td>
+          <td>
+            <button class="btn ghost" type="button" data-action="removeModalSerial">删除</button>
+            <button class="btn ghost" type="button" data-action="addModalSerial">新增</button>
+          </td>
+          <td>
+            <input data-field="modalSerialStart" type="number" min="1" max="1500" value="${serial.start || ""}" style="width: 120px;" />
+            <span>—</span>
+            <input data-field="modalSerialEnd" type="number" min="1" max="1500" value="${serial.end || ""}" style="width: 120px;" />
+          </td>
+          <td><input class="readonly" data-field="modalSerialQty" readonly /></td>
+          <td><input class="readonly" value="箱" readonly /></td>
+        `;
+        tr.querySelectorAll("[data-field='modalSerialStart'], [data-field='modalSerialEnd']").forEach((field) => {
+          field.addEventListener("input", updateModalSerialRows);
+        });
+        tr.querySelector("[data-action='removeModalSerial']").addEventListener("click", () => {
+          const body = tr.closest("[data-role='modalSerialBody']");
+          if (body.querySelectorAll("tr").length === 1) {
+            tr.querySelector("[data-field='modalSerialStart']").value = "";
+            tr.querySelector("[data-field='modalSerialEnd']").value = "";
+          } else {
+            tr.remove();
+          }
+          updateModalSerialRows();
+        });
+        tr.querySelector("[data-action='addModalSerial']").addEventListener("click", () => {
+          const body = tr.closest("[data-role='modalSerialBody']");
+          const lastEnd = Math.max(0, ...Array.from(body.querySelectorAll("[data-field='modalSerialEnd']")).map((item) => Number(item.value || 0)));
+          const start = Math.min(lastEnd + 1, 1500);
+          const end = Math.min(start + 149, 1500);
+          body.appendChild(createModalSerialRow({ start, end }));
+          updateModalSerialRows();
+        });
+        return tr;
+      }
+
+      function updateModalSerialRows() {
+        const rows = boxModalContent.querySelectorAll("[data-role='modalSerialBody'] tr");
+        rows.forEach((row, index) => {
+          const start = row.querySelector("[data-field='modalSerialStart']").value;
+          const end = row.querySelector("[data-field='modalSerialEnd']").value;
+          row.querySelector("[data-field='modalSerialNo']").value = index + 1;
+          row.querySelector("[data-field='modalSerialQty']").value = getSerialCount(start, end);
+        });
+      }
+
+      function closeBoxModal() {
+        boxModal.style.display = "none";
+        activeBoxCard = null;
+      }
+
+      function confirmBoxModal() {
+        if (!activeBoxCard) {
+          closeBoxModal();
+          return;
+        }
+        const serialBody = activeBoxCard.querySelector("[data-role='serialBody']");
+        const modalRows = Array.from(boxModalContent.querySelectorAll("[data-role='modalSerialBody'] tr"));
+        serialBody.innerHTML = "";
+        modalRows.forEach((row) => {
+          const start = Number(row.querySelector("[data-field='modalSerialStart']").value || 0);
+          const end = Number(row.querySelector("[data-field='modalSerialEnd']").value || 0);
+          serialBody.appendChild(createSerialRow({ start, end }, activeBoxCard));
+        });
+        if (!modalRows.length) {
+          serialBody.appendChild(createSerialRow({}, activeBoxCard));
+        }
+        updateSerialRows(activeBoxCard);
+        updateSummary();
+        closeBoxModal();
+      }
+
+      function updateSerialRows(card) {
+        card.querySelectorAll("[data-role='serialBody'] tr").forEach((row, index) => {
+          row.querySelector("[data-field='serialNo']").value = index + 1;
+          const start = row.querySelector("[data-field='serialStart']").value;
+          const end = row.querySelector("[data-field='serialEnd']").value;
+          row.querySelector("[data-field='inboundQty']").value = getSerialCount(start, end);
+        });
+        updateBatchQty(card);
+        card.querySelector("[data-field='boxSummary']").value = getBoxSerialSummary(card);
+      }
+
+      function createSerialRow(serial = {}, card) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><input class="readonly" data-field="serialNo" readonly /></td>
+          <td>
+            <button class="btn ghost" type="button" data-action="removeSerial">删除</button>
+            <button class="btn ghost" type="button" data-action="addSerial">新增</button>
+          </td>
+          <td><input class="readonly" data-field="inboundQty" readonly /></td>
+          <td>
+            <input data-field="serialStart" type="number" min="1" max="1500" value="${serial.start || ""}" style="width: 120px;" />
+            <span>—</span>
+            <input data-field="serialEnd" type="number" min="1" max="1500" value="${serial.end || ""}" style="width: 120px;" />
+          </td>
+          <td><input class="readonly" data-field="unit" value="CAR" readonly /></td>
+        `;
+        tr.querySelectorAll("[data-field='serialStart'], [data-field='serialEnd']").forEach((field) => {
+          field.addEventListener("input", () => {
+            updateSerialRows(card);
+            updateSummary();
+          });
+        });
+        tr.querySelector("[data-action='removeSerial']").addEventListener("click", () => {
+          const body = tr.closest("[data-role='serialBody']");
+          if (body.querySelectorAll("tr").length === 1) {
+            tr.querySelector("[data-field='serialStart']").value = "";
+            tr.querySelector("[data-field='serialEnd']").value = "";
+          } else {
+            tr.remove();
+          }
+          updateSerialRows(card);
+          updateSummary();
+        });
+        tr.querySelector("[data-action='addSerial']").addEventListener("click", () => {
+          const body = tr.closest("[data-role='serialBody']");
+          const lastEnd = Math.max(0, ...Array.from(body.querySelectorAll("[data-field='serialEnd']")).map((item) => Number(item.value || 0)));
+          const start = Math.min(lastEnd + 1, 1500);
+          const end = Math.min(start + 149, 1500);
+          body.appendChild(createSerialRow({ start, end }, card));
+          updateSerialRows(card);
+          updateSummary();
+        });
+        return tr;
+      }
+
+      function updateIssueRows(body) {
+        body.querySelectorAll("tr").forEach((row, index) => {
+          row.querySelector("[data-field='issueNo']").value = index + 1;
+        });
+      }
+
       function createIssueRow(issue = {}) {
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td>
-            <select data-field="material">
-              <option value="">请选择</option>
-              <option ${issue.material === "空罐" ? "selected" : ""}>空罐</option>
-              <option ${issue.material === "顶盖" ? "selected" : ""}>顶盖</option>
-              <option ${issue.material === "纸皮" ? "selected" : ""}>纸皮</option>
-              <option ${issue.material === "糖浆" ? "selected" : ""}>糖浆</option>
-            </select>
-          </td>
+          <td><input class="readonly" data-field="issueNo" readonly /></td>
+          <td><input data-field="machineTime" type="time" value="${issue.machineTime || ""}" /></td>
           <td><input data-field="materialBatch" value="${issue.materialBatch || ""}" placeholder="原料批次" /></td>
           <td><input data-field="supplier" value="${issue.supplier || ""}" placeholder="供应商" /></td>
           <td><textarea data-field="problem" placeholder="问题描述">${issue.problem || ""}</textarea></td>
-          <td><input data-field="qty" type="number" min="0" value="${issue.qty || 0}" /></td>
-          <td>
-            <select data-field="level">
-              <option ${issue.level === "轻微" ? "selected" : ""}>轻微</option>
-              <option ${issue.level === "一般" || !issue.level ? "selected" : ""}>一般</option>
-              <option ${issue.level === "严重" ? "selected" : ""}>严重</option>
-            </select>
-          </td>
-          <td><input data-field="action" value="${issue.action || ""}" placeholder="处理措施" /></td>
           <td><button class="btn ghost" type="button" data-action="removeIssue">删除</button></td>
         `;
         tr.querySelectorAll("input, select, textarea").forEach((field) => {
@@ -336,7 +525,9 @@
           field.addEventListener("change", updateSummary);
         });
         tr.querySelector("[data-action='removeIssue']").addEventListener("click", () => {
+          const body = tr.closest("[data-role='issueBody']");
           tr.remove();
+          updateIssueRows(body);
           updateSummary();
         });
         return tr;
@@ -371,19 +562,23 @@
               </div>
               <div class="field">
                 <label>对应成品箱号</label>
-                <input data-field="boxNo" value="${batch.boxNo || ""}" placeholder="例如 BX001~BX080" />
+                <input class="readonly" data-field="boxSummary" value="点击查看箱序列号" readonly style="cursor:pointer;" />
               </div>
               <div class="field">
                 <label><span class="required">*</span>隔离数量</label>
-                <input data-field="isolateQty" type="number" min="0" value="${batch.isolateQty || 0}" />
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <input class="readonly" data-field="isolateQty" type="number" min="0" value="${batch.isolateQty || 0}" readonly />
+                  <span class="muted">箱</span>
+                </div>
+              </div>
+              <div style="display:none;">
+                <table>
+                  <tbody data-role="serialBody"></tbody>
+                </table>
               </div>
               <div class="field wide">
                 <label><span class="required">*</span>隔离原因</label>
                 <textarea data-field="isolateReason" placeholder="请输入隔离原因">${batch.isolateReason || ""}</textarea>
-              </div>
-              <div class="field wide">
-                <label><span class="required">*</span>结论</label>
-                <textarea data-field="conclusion" placeholder="请输入结论">${batch.conclusion || ""}</textarea>
               </div>
             </div>
             <div class="sub-title">
@@ -394,13 +589,11 @@
               <table class="editable-table">
                 <thead>
                   <tr>
-                    <th style="width: 120px;">原料名称</th>
+                    <th style="width: 70px;">序号</th>
+                    <th style="width: 110px;">上机时间</th>
                     <th style="width: 150px;">原料批次</th>
                     <th style="width: 130px;">供应商</th>
                     <th>问题描述</th>
-                    <th style="width: 90px;">影响数量</th>
-                    <th style="width: 90px;">问题等级</th>
-                    <th style="width: 150px;">处理措施</th>
                     <th style="width: 70px;">操作</th>
                   </tr>
                 </thead>
@@ -413,13 +606,24 @@
         const issueBody = card.querySelector("[data-role='issueBody']");
         const issues = batch.issues && batch.issues.length ? batch.issues : [{}];
         issues.forEach((issue) => issueBody.appendChild(createIssueRow(issue)));
+        updateIssueRows(issueBody);
+        const serialBody = card.querySelector("[data-role='serialBody']");
+        const serials = batch.boxSerials && batch.boxSerials.length ? batch.boxSerials : [{}];
+        serials.forEach((serial) => serialBody.appendChild(createSerialRow(serial, card)));
+        updateSerialRows(card);
+        updateBatchQty(card);
 
-        card.querySelectorAll("input, textarea").forEach((field) => {
+        card.querySelectorAll("input, select, textarea").forEach((field) => {
           field.addEventListener("input", updateSummary);
+          field.addEventListener("change", updateSummary);
         });
         card.querySelector("[data-action='addIssue']").addEventListener("click", () => {
           issueBody.appendChild(createIssueRow());
+          updateIssueRows(issueBody);
           updateSummary();
+        });
+        card.querySelector("[data-field='boxSummary']").addEventListener("click", () => {
+          openBoxModal(card);
         });
         card.querySelector("[data-action='removeBatch']").addEventListener("click", () => {
           if (document.querySelectorAll(".batch-card").length === 1) {
@@ -440,22 +644,22 @@
 
       function readBatch(card) {
         const get = (field) => card.querySelector(`[data-field="${field}"]`).value.trim();
+        const serials = Array.from(card.querySelectorAll("[data-role='serialBody'] tr")).map((row) => ({
+          start: Number(row.querySelector("[data-field='serialStart']").value || 0),
+          end: Number(row.querySelector("[data-field='serialEnd']").value || 0)
+        }));
         const issues = Array.from(card.querySelectorAll("[data-role='issueBody'] tr")).map((row) => ({
-          material: row.querySelector("[data-field='material']").value,
+          machineTime: row.querySelector("[data-field='machineTime']").value,
           materialBatch: row.querySelector("[data-field='materialBatch']").value.trim(),
           supplier: row.querySelector("[data-field='supplier']").value.trim(),
-          problem: row.querySelector("[data-field='problem']").value.trim(),
-          qty: Number(row.querySelector("[data-field='qty']").value || 0),
-          level: row.querySelector("[data-field='level']").value,
-          action: row.querySelector("[data-field='action']").value.trim()
+          problem: row.querySelector("[data-field='problem']").value.trim()
         }));
         return {
           batchCode: get("batchCode"),
           lotNo: get("lotNo"),
-          boxNo: get("boxNo"),
+          boxSerials: serials,
           isolateQty: Number(get("isolateQty") || 0),
           isolateReason: get("isolateReason"),
-          conclusion: get("conclusion"),
           issues
         };
       }
@@ -465,12 +669,12 @@
         if (!batch.batchCode) missing += 1;
         if (!batch.isolateQty) missing += 1;
         if (!batch.isolateReason) missing += 1;
-        if (!batch.conclusion) missing += 1;
+        batch.boxSerials.forEach((serial) => {
+          if (!serial.start || !serial.end || serial.end < serial.start) missing += 1;
+        });
         batch.issues.forEach((issue) => {
-          if (!issue.material) missing += 1;
           if (!issue.materialBatch) missing += 1;
           if (!issue.problem) missing += 1;
-          if (!issue.qty) missing += 1;
         });
         return missing;
       }
@@ -491,7 +695,7 @@
         document.querySelectorAll(".batch-card").forEach((card, index) => {
           const batch = readBatch(card);
           card.querySelector(".batch-index").textContent = index + 1;
-          card.querySelector(".batch-brief").textContent = batch.batchCode ? `${batch.batchCode} / ${batch.isolateQty || 0} 罐` : "未填写批次";
+          card.querySelector(".batch-brief").textContent = batch.batchCode ? `${batch.batchCode} / ${batch.isolateQty || 0} 箱` : "未填写批次";
         });
       }
 
@@ -538,6 +742,14 @@
       });
       document.querySelector("#deleteBtn").addEventListener("click", () => {
         showMessage("原型动作：暂存单据可删除，删除时同步删除批次与原料问题明细。", "error");
+      });
+      document.querySelector("#closeBoxModal").addEventListener("click", () => {
+        closeBoxModal();
+      });
+      boxModal.addEventListener("click", (event) => {
+        if (event.target === boxModal) {
+          closeBoxModal();
+        }
       });
 
       batches.forEach((batch) => batchContainer.appendChild(createBatchCard(batch)));
