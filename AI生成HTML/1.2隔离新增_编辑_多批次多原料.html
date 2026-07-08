@@ -85,10 +85,6 @@
                 <label for="exceptionNo">异常记录单号</label>
                 <input id="exceptionNo" class="readonly" placeholder="提交工序异常记录后反写" readonly />
               </div>
-              <div class="field">
-                <label for="reworkNo">返工单号</label>
-                <input id="reworkNo" class="readonly" placeholder="发起返工后反写" readonly />
-              </div>
               <div class="field wide">
                 <label for="productName"><span class="required">*</span>产品名称</label>
                 <select id="productName">
@@ -218,8 +214,8 @@
           <div class="card-body">
             <div class="form-grid">
               <div class="field">
-                <label for="result"><span class="required">*</span>隔离结果</label>
-                <select id="result">
+                <label for="result"><span class="required">*</span>隔离进度</label>
+                <select id="result" class="readonly" disabled>
                   <option selected>隔离中</option>
                   <option>无需返工</option>
                   <option>已发起返工</option>
@@ -232,6 +228,10 @@
               <div class="field">
                 <label for="reviewSign">复核员签名</label>
                 <input id="reviewSign" class="readonly" placeholder="签字复核后写入" readonly />
+              </div>
+              <div class="field full">
+                <label for="conclusion">结论</label>
+                <textarea id="conclusion" placeholder="请输入结论">隔离观察，待后续处置结果确认。</textarea>
               </div>
               <div class="field full">
                 <label for="remark">备注</label>
@@ -248,8 +248,7 @@
           <button class="btn" type="button" id="saveBtn">保存</button>
           <button class="btn primary" type="button" id="submitBtn">签字提交</button>
           <button class="btn" type="button" id="reviewBtn">签字复核</button>
-          <button class="btn" type="button" id="reworkBtn">发起返工</button>
-          <button class="btn" type="button" id="noReworkBtn">无需返工</button>
+          <button class="btn" type="button" id="followUpBtn">隔离跟进</button>
           <button class="btn danger" type="button" id="deleteBtn">删除</button>
         </div>
       </footer>
@@ -261,6 +260,17 @@
           </div>
           <div class="card-body">
             <div id="boxModalContent"></div>
+          </div>
+        </div>
+      </div>
+      <div id="followUpModal" style="display:none;position:fixed;inset:0;z-index:20;background:rgba(15,23,42,0.35);align-items:center;justify-content:center;">
+        <div class="card" style="width:min(1120px,94vw);max-height:82vh;overflow:auto;margin:0;">
+          <div class="card-header">
+            <div class="card-title">隔离跟进</div>
+            <button class="btn ghost" type="button" id="closeFollowUpModal">关闭</button>
+          </div>
+          <div class="card-body">
+            <div id="followUpModalContent"></div>
           </div>
         </div>
       </div>
@@ -299,6 +309,8 @@
       const message = document.querySelector("#message");
       const boxModal = document.querySelector("#boxModal");
       const boxModalContent = document.querySelector("#boxModalContent");
+      const followUpModal = document.querySelector("#followUpModal");
+      const followUpModalContent = document.querySelector("#followUpModalContent");
       let activeBoxCard = null;
 
       function nextBatchId() {
@@ -544,6 +556,13 @@
               <span class="batch-index"></span>
               <span>成品批次</span>
               <span class="muted batch-brief"></span>
+              <select class="batch-progress" data-field="disposeProgress">
+                <option ${(batch.disposeProgress || "待隔离") === "待隔离" ? "selected" : ""}>待隔离</option>
+                <option ${(batch.disposeProgress || "待隔离") === "隔离中" ? "selected" : ""}>隔离中</option>
+                <option ${(batch.disposeProgress || "待隔离") === "无需返工" ? "selected" : ""}>无需返工</option>
+                <option ${(batch.disposeProgress || "待隔离") === "返工中" ? "selected" : ""}>返工中</option>
+                <option ${(batch.disposeProgress || "待隔离") === "返工完成" ? "selected" : ""}>返工完成</option>
+              </select>
             </div>
             <div class="batch-actions">
               <button class="btn" type="button" data-action="copyBatch">复制批次</button>
@@ -579,6 +598,10 @@
               <div class="field wide">
                 <label><span class="required">*</span>隔离原因</label>
                 <textarea data-field="isolateReason" placeholder="请输入隔离原因">${batch.isolateReason || ""}</textarea>
+              </div>
+              <div class="field wide">
+                <label>返工单号</label>
+                <input class="readonly" data-field="reworkNo" value="${batch.reworkNo || ""}" placeholder="发起返工后反写" readonly />
               </div>
             </div>
             <div class="sub-title">
@@ -657,9 +680,11 @@
         return {
           batchCode: get("batchCode"),
           lotNo: get("lotNo"),
+          disposeProgress: get("disposeProgress"),
           boxSerials: serials,
           isolateQty: Number(get("isolateQty") || 0),
           isolateReason: get("isolateReason"),
+          reworkNo: get("reworkNo"),
           issues
         };
       }
@@ -697,6 +722,160 @@
           card.querySelector(".batch-index").textContent = index + 1;
           card.querySelector(".batch-brief").textContent = batch.batchCode ? `${batch.batchCode} / ${batch.isolateQty || 0} 箱` : "未填写批次";
         });
+        updateFollowUpButton(list);
+      }
+
+      function updateFollowUpButton(list = readAllBatches()) {
+        const button = document.querySelector("#followUpBtn");
+        const canFollowUp = list.some((item) => item.disposeProgress === "隔离中");
+        button.disabled = !canFollowUp;
+        button.title = canFollowUp ? "" : "存在处置进度为隔离中的批次后可使用";
+      }
+
+      function approveIsolation() {
+        document.querySelectorAll("[data-field='disposeProgress']").forEach((field) => {
+          if (field.value === "待隔离") {
+            field.value = "隔离中";
+          }
+        });
+        updateSummary();
+      }
+
+      function safeText(value) {
+        return String(value || "").replace(/[&<>"']/g, (char) => ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          "\"": "&quot;",
+          "'": "&#39;"
+        }[char]));
+      }
+
+      function getIsolationFollowUpCards() {
+        return Array.from(document.querySelectorAll(".batch-card")).filter((card) => readBatch(card).disposeProgress === "隔离中");
+      }
+
+      function renderFollowUpRow(card) {
+        const batch = readBatch(card);
+        const tr = document.createElement("tr");
+        tr.dataset.batchId = card.dataset.batchId;
+        tr.innerHTML = `
+          <td data-role="followUpNo"></td>
+          <td>
+            <button class="btn ghost" type="button" data-action="removeFollowUpRow">移除</button>
+            <button class="btn ghost" type="button" data-action="addFollowUpRow">添加</button>
+          </td>
+          <td>${safeText(batch.batchCode || "-")}</td>
+          <td>${safeText(batch.lotNo || "-")}</td>
+          <td>${safeText(getBoxSerialSummary(batch.boxSerials))}</td>
+          <td>${batch.isolateQty || 0} 箱</td>
+          <td>${safeText(batch.isolateReason || "-")}</td>
+          <td>
+            <select data-field="followUpAction">
+              <option>发起返工</option>
+              <option>无需返工</option>
+            </select>
+          </td>
+        `;
+        tr.querySelector("[data-action='removeFollowUpRow']").addEventListener("click", () => {
+          tr.remove();
+          updateFollowUpRows();
+        });
+        tr.querySelector("[data-action='addFollowUpRow']").addEventListener("click", () => {
+          addNextFollowUpRow();
+        });
+        return tr;
+      }
+
+      function getFollowUpBody() {
+        return followUpModalContent.querySelector("[data-role='followUpBody']");
+      }
+
+      function updateFollowUpRows() {
+        const body = getFollowUpBody();
+        if (!body) return;
+        body.querySelectorAll("tr").forEach((row, index) => {
+          row.querySelector("[data-role='followUpNo']").textContent = index + 1;
+        });
+      }
+
+      function addNextFollowUpRow() {
+        const body = getFollowUpBody();
+        if (!body) return;
+        const selectedIds = new Set(Array.from(body.querySelectorAll("tr")).map((row) => row.dataset.batchId));
+        const nextCard = getIsolationFollowUpCards().find((card) => !selectedIds.has(card.dataset.batchId));
+        if (!nextCard) {
+          showMessage("没有未带入的隔离中批次。", "error");
+          return;
+        }
+        body.appendChild(renderFollowUpRow(nextCard));
+        updateFollowUpRows();
+      }
+
+      function openFollowUpModal() {
+        const cards = getIsolationFollowUpCards();
+        if (!cards.length) {
+          showMessage("当前无隔离中批次，不能进行隔离跟进。", "error");
+          updateFollowUpButton();
+          return;
+        }
+        followUpModalContent.innerHTML = `
+          <div class="muted" style="margin-bottom:10px;">已自动带入当前处置进度为“隔离中”的成品批次。</div>
+          <div class="table-wrap">
+            <table class="editable-table">
+              <thead>
+                <tr>
+                  <th style="width:70px;">序号</th>
+                  <th style="width:120px;">操作</th>
+                  <th>成品批次</th>
+                  <th>成品批号</th>
+                  <th>对应成品箱号</th>
+                  <th style="width:110px;">隔离数量</th>
+                  <th>隔离原因</th>
+                  <th style="width:150px;">跟进结果</th>
+                </tr>
+              </thead>
+              <tbody data-role="followUpBody"></tbody>
+            </table>
+          </div>
+          <div class="actions">
+            <button class="btn" type="button" data-action="cancelFollowUpModal">取消</button>
+            <button class="btn primary" type="button" data-action="confirmFollowUpModal">确认</button>
+          </div>
+        `;
+        const body = getFollowUpBody();
+        cards.forEach((card) => body.appendChild(renderFollowUpRow(card)));
+        updateFollowUpRows();
+        followUpModalContent.querySelector("[data-action='cancelFollowUpModal']").addEventListener("click", closeFollowUpModal);
+        followUpModalContent.querySelector("[data-action='confirmFollowUpModal']").addEventListener("click", confirmFollowUpModal);
+        followUpModal.style.display = "flex";
+      }
+
+      function closeFollowUpModal() {
+        followUpModal.style.display = "none";
+        followUpModalContent.innerHTML = "";
+      }
+
+      function confirmFollowUpModal() {
+        const rows = Array.from(followUpModalContent.querySelectorAll("tbody tr"));
+        rows.forEach((row, index) => {
+          const card = document.querySelector(`.batch-card[data-batch-id="${row.dataset.batchId}"]`);
+          if (!card) return;
+          const action = row.querySelector("[data-field='followUpAction']").value;
+          const progress = card.querySelector("[data-field='disposeProgress']");
+          const reworkNo = card.querySelector("[data-field='reworkNo']");
+          if (action === "发起返工") {
+            progress.value = "返工中";
+            if (!reworkNo.value.trim()) {
+              reworkNo.value = `FG20260706${String(index + 1).padStart(3, "0")}`;
+            }
+          } else {
+            progress.value = "无需返工";
+          }
+        });
+        closeFollowUpModal();
+        updateSummary();
+        showMessage("原型动作：隔离跟进已确认，批次处置进度已回写。", "success");
       }
 
       function showMessage(text, type = "") {
@@ -729,16 +908,16 @@
       });
       document.querySelector("#submitBtn").addEventListener("click", submitForm);
       document.querySelector("#reviewBtn").addEventListener("click", () => {
-        showMessage("原型动作：打开签字复核窗口，获取登录账号所属签名。", "success");
+        approveIsolation();
+        showMessage("原型动作：签字复核完成，待隔离批次已变更为隔离中。", "success");
       });
-      document.querySelector("#reworkBtn").addEventListener("click", () => {
-        document.querySelector("#result").value = "已发起返工";
-        document.querySelector("#reworkNo").value = "FG20260706001";
-        showMessage("原型动作：已发起返工，返工单号已反写。", "success");
-      });
-      document.querySelector("#noReworkBtn").addEventListener("click", () => {
-        document.querySelector("#result").value = "无需返工";
-        showMessage("原型动作：隔离结果已变更为无需返工。", "success");
+      document.querySelector("#followUpBtn").addEventListener("click", () => {
+        if (!readAllBatches().some((item) => item.disposeProgress === "隔离中")) {
+          showMessage("当前无隔离中批次，不能进行隔离跟进。", "error");
+          updateFollowUpButton();
+          return;
+        }
+        openFollowUpModal();
       });
       document.querySelector("#deleteBtn").addEventListener("click", () => {
         showMessage("原型动作：暂存单据可删除，删除时同步删除批次与原料问题明细。", "error");
@@ -746,9 +925,17 @@
       document.querySelector("#closeBoxModal").addEventListener("click", () => {
         closeBoxModal();
       });
+      document.querySelector("#closeFollowUpModal").addEventListener("click", () => {
+        closeFollowUpModal();
+      });
       boxModal.addEventListener("click", (event) => {
         if (event.target === boxModal) {
           closeBoxModal();
+        }
+      });
+      followUpModal.addEventListener("click", (event) => {
+        if (event.target === followUpModal) {
+          closeFollowUpModal();
         }
       });
 
