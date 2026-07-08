@@ -74,8 +74,13 @@
                 </select>
               </div>
               <div class="field">
-                <label for="type"><span class="required">*</span>类型</label>
-                <input id="type" class="readonly" value="处置类型" readonly />
+                <label for="line">生产线别</label>
+                <select id="line">
+                  <option>1线</option>
+                  <option>2线</option>
+                  <option selected>6线</option>
+                  <option>10线</option>
+                </select>
               </div>
               <div class="field">
                 <label for="chemist"><span class="required">*</span>工序化验员</label>
@@ -85,7 +90,7 @@
                 <label for="exceptionNo">异常记录单号</label>
                 <input id="exceptionNo" class="readonly" placeholder="提交工序异常记录后反写" readonly />
               </div>
-              <div class="field wide">
+              <div class="field">
                 <label for="productName"><span class="required">*</span>产品名称</label>
                 <select id="productName">
                   <option value="">请选择</option>
@@ -93,6 +98,10 @@
                   <option>红牛维生素功能饮料（牛磺酸强化型）</option>
                   <option>战马能量型维生素饮料</option>
                 </select>
+              </div>
+              <div class="field">
+                <label for="type"><span class="required">*</span>类型</label>
+                <input id="type" class="readonly" value="处置类型" readonly />
               </div>
             </div>
           </div>
@@ -167,23 +176,6 @@
                   <option>已剔除</option>
                 </select>
               </div>
-              <div class="field">
-                <label for="line">生产线别</label>
-                <select id="line">
-                  <option>1线</option>
-                  <option>2线</option>
-                  <option selected>6线</option>
-                  <option>10线</option>
-                </select>
-              </div>
-              <div class="field">
-                <label for="sceneImage">现场图片</label>
-                <input id="sceneImage" placeholder="点击上传图片" />
-              </div>
-              <div class="field full">
-                <label for="badDesc">不良描述</label>
-                <textarea id="badDesc">多批次成品发现外观异常，需逐批隔离并登记对应原料问题。</textarea>
-              </div>
             </div>
           </div>
         </section>
@@ -214,11 +206,12 @@
           <div class="card-body">
             <div class="form-grid">
               <div class="field">
-                <label for="result"><span class="required">*</span>隔离进度</label>
-                <select id="result" class="readonly" disabled>
+                <label for="result"><span class="required">*</span>处置进度</label>
+                <select id="result">
+                  <option>待隔离</option>
                   <option selected>隔离中</option>
-                  <option>无需返工</option>
-                  <option>已发起返工</option>
+                  <option>处置中</option>
+                  <option>处置完成</option>
                 </select>
               </div>
               <div class="field">
@@ -287,8 +280,8 @@
           isolateReason: "空罐变形，顶盖划伤",
           conclusion: "隔离观察",
           issues: [
-            { machineTime: "08:45", materialBatch: "KG2026070108", supplier: "A供应商", problem: "罐身凹陷" },
-            { machineTime: "09:10", materialBatch: "DG2026070203", supplier: "B供应商", problem: "外观划伤" }
+            { machineTime: "08:45", materialBatch: "KG2026070108", palletNo: "TP-0108", factoryLine: "A线", supplier: "A供应商", problem: "罐身凹陷" },
+            { machineTime: "09:10", materialBatch: "DG2026070203", palletNo: "TP-0203", factoryLine: "B线", supplier: "B供应商", problem: "外观划伤" }
           ]
         },
         {
@@ -299,8 +292,8 @@
           isolateReason: "纸皮破损，空罐疑似混批",
           conclusion: "发起复核",
           issues: [
-            { machineTime: "10:20", materialBatch: "ZP2026070305", supplier: "C供应商", problem: "外箱纸皮破损" },
-            { machineTime: "10:45", materialBatch: "KG2026070109", supplier: "A供应商", problem: "批号疑似混用" }
+            { machineTime: "10:20", materialBatch: "ZP2026070305", palletNo: "TP-0305", factoryLine: "C线", supplier: "C供应商", problem: "外箱纸皮破损" },
+            { machineTime: "10:45", materialBatch: "KG2026070109", palletNo: "TP-0109", factoryLine: "A线", supplier: "A供应商", problem: "批号疑似混用" }
           ]
         }
       ];
@@ -527,7 +520,9 @@
         tr.innerHTML = `
           <td><input class="readonly" data-field="issueNo" readonly /></td>
           <td><input data-field="machineTime" type="time" value="${issue.machineTime || ""}" /></td>
-          <td><input data-field="materialBatch" value="${issue.materialBatch || ""}" placeholder="原料批次" /></td>
+          <td><input data-field="materialBatch" value="${issue.materialBatch || ""}" placeholder="原厂批次" /></td>
+          <td><input data-field="palletNo" value="${issue.palletNo || ""}" placeholder="托盘号" /></td>
+          <td><input data-field="factoryLine" value="${issue.factoryLine || ""}" placeholder="厂线" /></td>
           <td><input data-field="supplier" value="${issue.supplier || ""}" placeholder="供应商" /></td>
           <td><textarea data-field="problem" placeholder="问题描述">${issue.problem || ""}</textarea></td>
           <td><button class="btn ghost" type="button" data-action="removeIssue">删除</button></td>
@@ -576,11 +571,11 @@
                 <input data-field="batchCode" value="${batch.batchCode || ""}" placeholder="请输入成品批次" />
               </div>
               <div class="field">
-                <label>成品批号</label>
+                <label><span class="required">*</span>成品批号</label>
                 <input data-field="lotNo" value="${batch.lotNo || ""}" placeholder="请输入成品批号" />
               </div>
               <div class="field">
-                <label>对应成品箱号</label>
+                <label><span class="required">*</span>对应成品箱号</label>
                 <input class="readonly" data-field="boxSummary" value="点击查看箱序列号" readonly style="cursor:pointer;" />
               </div>
               <div class="field">
@@ -600,6 +595,10 @@
                 <textarea data-field="isolateReason" placeholder="请输入隔离原因">${batch.isolateReason || ""}</textarea>
               </div>
               <div class="field wide">
+                <label>现场图片</label>
+                <input data-field="sceneImage" value="${batch.sceneImage || ""}" placeholder="点击上传图片" />
+              </div>
+              <div class="field">
                 <label>返工单号</label>
                 <input class="readonly" data-field="reworkNo" value="${batch.reworkNo || ""}" placeholder="发起返工后反写" readonly />
               </div>
@@ -614,7 +613,9 @@
                   <tr>
                     <th style="width: 70px;">序号</th>
                     <th style="width: 110px;">上机时间</th>
-                    <th style="width: 150px;">原料批次</th>
+                    <th style="width: 150px;">原厂批次</th>
+                    <th style="width: 120px;">托盘号</th>
+                    <th style="width: 100px;">厂线</th>
                     <th style="width: 130px;">供应商</th>
                     <th>问题描述</th>
                     <th style="width: 70px;">操作</th>
@@ -674,6 +675,8 @@
         const issues = Array.from(card.querySelectorAll("[data-role='issueBody'] tr")).map((row) => ({
           machineTime: row.querySelector("[data-field='machineTime']").value,
           materialBatch: row.querySelector("[data-field='materialBatch']").value.trim(),
+          palletNo: row.querySelector("[data-field='palletNo']").value.trim(),
+          factoryLine: row.querySelector("[data-field='factoryLine']").value.trim(),
           supplier: row.querySelector("[data-field='supplier']").value.trim(),
           problem: row.querySelector("[data-field='problem']").value.trim()
         }));
@@ -684,6 +687,7 @@
           boxSerials: serials,
           isolateQty: Number(get("isolateQty") || 0),
           isolateReason: get("isolateReason"),
+          sceneImage: get("sceneImage"),
           reworkNo: get("reworkNo"),
           issues
         };
@@ -692,6 +696,7 @@
       function validateBatch(batch) {
         let missing = 0;
         if (!batch.batchCode) missing += 1;
+        if (!batch.lotNo) missing += 1;
         if (!batch.isolateQty) missing += 1;
         if (!batch.isolateReason) missing += 1;
         batch.boxSerials.forEach((serial) => {

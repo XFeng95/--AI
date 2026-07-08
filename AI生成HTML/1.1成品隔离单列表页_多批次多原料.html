@@ -38,11 +38,11 @@
 
         <section class="stats">
           <div class="stat">
-            <div class="stat-label">隔离中单据</div>
+            <div class="stat-label">未处置完成单据</div>
             <div class="stat-value" id="isolatingCount">0</div>
           </div>
           <div class="stat">
-            <div class="stat-label">涉及成品批次</div>
+            <div class="stat-label">隔离中批次</div>
             <div class="stat-value" id="batchCount">0</div>
           </div>
           <div class="stat">
@@ -50,7 +50,7 @@
             <div class="stat-value" id="materialIssueCount">0</div>
           </div>
           <div class="stat">
-            <div class="stat-label">隔离总量</div>
+            <div class="stat-label">隔离总量（箱）</div>
             <div class="stat-value" id="totalQty">0</div>
           </div>
         </section>
@@ -142,13 +142,13 @@
                   <th style="width: 88px;">生产线别</th>
                   <th style="width: 110px;">隔离日期</th>
                   <th style="width: 86px;">批次数</th>
+                  <th style="width: 110px;">隔离中批次数</th>
                   <th style="width: 110px;">原料问题数</th>
-                  <th style="width: 100px;">隔离总量</th>
+                  <th style="width: 110px;">隔离总量（箱）</th>
                   <th style="width: 170px;">涉及原料</th>
-                  <th>问题摘要</th>
                   <th style="width: 90px;">隔离结果</th>
                   <th style="width: 90px;">单据状态</th>
-                  <th style="width: 170px;">操作</th>
+                  <th style="width: 150px;">操作</th>
                 </tr>
               </thead>
               <tbody id="tableBody"></tbody>
@@ -171,12 +171,13 @@
           line: "6线",
           date: "2026-07-06",
           batchCount: 3,
+          isolatingBatchCount: 0,
           issueCount: 6,
           totalQty: 186,
           materials: ["空罐", "顶盖", "纸皮"],
           batches: ["CP20260706001", "CP20260706002", "CP20260706003"],
           summary: "多批次发现空罐变形、顶盖划伤、纸皮破损，需按批次分别隔离并记录对应原料问题。",
-          result: "隔离中",
+          result: "待隔离",
           status: "待审核"
         },
         {
@@ -186,12 +187,13 @@
           line: "10线",
           date: "2026-07-06",
           batchCount: 2,
+          isolatingBatchCount: 0,
           issueCount: 3,
           totalQty: 92,
           materials: ["空罐", "糖浆"],
           batches: ["CP20260706011", "CP20260706012"],
           summary: "同一发现事件涉及两批成品，分别对应空罐凹陷和糖浆批次记录异常。",
-          result: "隔离中",
+          result: "待隔离",
           status: "暂存"
         },
         {
@@ -201,12 +203,13 @@
           line: "2线",
           date: "2026-07-05",
           batchCount: 4,
+          isolatingBatchCount: 2,
           issueCount: 5,
           totalQty: 248,
           materials: ["顶盖", "纸皮"],
           batches: ["CP20260705017", "CP20260705018", "CP20260705019", "CP20260705020"],
           summary: "连续批次存在顶盖批号混用风险，部分外箱纸皮喷码不清。",
-          result: "已发起返工",
+          result: "隔离中",
           status: "已审核"
         },
         {
@@ -216,12 +219,13 @@
           line: "1线",
           date: "2026-07-04",
           batchCount: 1,
+          isolatingBatchCount: 0,
           issueCount: 2,
           totalQty: 44,
           materials: ["空罐"],
           batches: ["CP20260704007"],
           summary: "单批次空罐卷封位置异常，已完成隔离确认。",
-          result: "无需返工",
+          result: "处置完成",
           status: "已审核"
         }
       ];
@@ -246,7 +250,8 @@
 
       function getResultClass(result) {
         if (result === "隔离中") return "isolating";
-        if (result === "无需返工") return "done";
+        if (result === "处置完成") return "done";
+        if (result === "待隔离") return "draft";
         return "audit";
       }
 
@@ -280,16 +285,15 @@
             <td>${record.line}</td>
             <td>${record.date}</td>
             <td><span class="tag">${record.batchCount} 批</span></td>
+            <td><span class="tag ${record.isolatingBatchCount > 0 ? "warn" : "gray"}">${record.isolatingBatchCount} 批</span></td>
             <td><span class="tag warn">${record.issueCount} 条</span></td>
-            <td>${record.totalQty} 罐</td>
+            <td>${record.totalQty} 箱</td>
             <td>${record.materials.map((item) => `<span class="tag gray">${item}</span>`).join("")}</td>
-            <td>${record.summary}</td>
             <td><span class="status ${getResultClass(record.result)}">${record.result}</span></td>
             <td><span class="status ${getStatusClass(record.status)}">${record.status}</span></td>
             <td>
-              <a class="btn ghost" href="1.2隔离新增_编辑_多批次多原料.html?mode=edit&docNo=${record.docNo}">编辑</a>
               <a class="btn ghost" href="1.2隔离新增_编辑_多批次多原料.html?mode=view&docNo=${record.docNo}">详情</a>
-              <button class="btn ghost" type="button" onclick="alert('原型动作：发起返工')">发起返工</button>
+              ${record.isolatingBatchCount > 0 ? `<a class="btn ghost" href="1.2隔离新增_编辑_多批次多原料.html?mode=followUp&docNo=${record.docNo}">隔离跟进</a>` : ""}
             </td>
           </tr>
         `).join("");
@@ -297,8 +301,8 @@
           tableBody.innerHTML = `<tr><td colspan="13"><div class="empty">暂无匹配数据</div></td></tr>`;
         }
         document.querySelector("#recordInfo").textContent = `共 ${rows.length} 条`;
-        document.querySelector("#isolatingCount").textContent = rows.filter((item) => item.result === "隔离中").length;
-        document.querySelector("#batchCount").textContent = rows.reduce((sum, item) => sum + item.batchCount, 0);
+        document.querySelector("#isolatingCount").textContent = rows.filter((item) => item.result !== "处置完成").length;
+        document.querySelector("#batchCount").textContent = rows.reduce((sum, item) => sum + item.isolatingBatchCount, 0);
         document.querySelector("#materialIssueCount").textContent = rows.reduce((sum, item) => sum + item.issueCount, 0);
         document.querySelector("#totalQty").textContent = rows.reduce((sum, item) => sum + item.totalQty, 0);
       }
