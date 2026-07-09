@@ -144,12 +144,11 @@
                   <th style="width: 122px;">返工日期</th>
                   <th style="width: 84px;">批次数</th>
                   <th style="width: 108px;">原料问题数</th>
+                  <th style="width: 108px;">返工总箱数</th>
                   <th style="width: 108px;">返工总罐数</th>
                   <th style="width: 154px;">涉及原料</th>
-                  <th>返工摘要</th>
-                  <th style="width: 92px;">返工进度</th>
                   <th style="width: 86px;">单据状态</th>
-                  <th style="width: 168px;">操作</th>
+                  <th style="width: 124px;">操作</th>
                 </tr>
               </thead>
               <tbody id="tableBody"></tbody>
@@ -173,10 +172,10 @@
           date: "2026-07-06",
           batchCount: 3,
           issueCount: 6,
+          totalBoxQty: 186,
           totalQty: 186,
           materials: ["空罐", "顶盖", "纸皮"],
           batches: ["CP20260706001", "CP20260706002", "CP20260706003"],
-          summary: "由多批次成品隔离单发起返工，按批次处理空罐变形、顶盖划伤、纸皮破损。",
           progress: "返工中",
           status: "暂存"
         },
@@ -188,10 +187,10 @@
           date: "2026-07-05",
           batchCount: 4,
           issueCount: 5,
+          totalBoxQty: 248,
           totalQty: 248,
           materials: ["顶盖", "纸皮"],
           batches: ["CP20260705017", "CP20260705018", "CP20260705019", "CP20260705020"],
-          summary: "来源隔离单已审核，连续批次顶盖混用风险和外箱纸皮喷码不清需返工。",
           progress: "待返工",
           status: "待审核"
         },
@@ -203,10 +202,10 @@
           date: "2026-07-03",
           batchCount: 2,
           issueCount: 3,
+          totalBoxQty: 96,
           totalQty: 96,
           materials: ["空罐", "糖浆"],
           batches: ["CP20260703011", "CP20260703012"],
-          summary: "两批成品已完成返工，问题罐剔除后重新装箱码垛。",
           progress: "返工完成",
           status: "已审核"
         }
@@ -262,20 +261,18 @@
             <td>${record.date}</td>
             <td><span class="tag">${record.batchCount} 批</span></td>
             <td><span class="tag warn">${record.issueCount} 条</span></td>
+            <td>${record.totalBoxQty} 箱</td>
             <td>${record.totalQty} 罐</td>
             <td>${record.materials.map((item) => `<span class="tag gray">${item}</span>`).join("")}</td>
-            <td>${record.summary}</td>
-            <td><span class="status ${getProgressClass(record.progress)}">${record.progress}</span></td>
             <td><span class="status ${getStatusClass(record.status)}">${record.status}</span></td>
             <td>
-              <a class="btn ghost" href="3.2返工新增页面_多批次多原料.html?mode=edit&reworkNo=${record.reworkNo}&source=${record.sourceNo}">编辑</a>
               <a class="btn ghost" href="3.2返工新增页面_多批次多原料.html?mode=view&reworkNo=${record.reworkNo}&source=${record.sourceNo}">详情</a>
               <button class="btn ghost" type="button" onclick="alert('原型动作：生成返工报告')">报告</button>
             </td>
           </tr>
         `).join("");
         if (!rows.length) {
-          tableBody.innerHTML = `<tr><td colspan="13"><div class="empty">暂无匹配数据</div></td></tr>`;
+          tableBody.innerHTML = `<tr><td colspan="12"><div class="empty">暂无匹配数据</div></td></tr>`;
         }
         document.querySelector("#recordInfo").textContent = `共 ${rows.length} 条`;
         document.querySelector("#runningCount").textContent = rows.filter((item) => item.progress === "返工中").length;
