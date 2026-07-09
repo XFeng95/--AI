@@ -103,6 +103,10 @@
                 <label for="type"><span class="required">*</span>类型</label>
                 <input id="type" class="readonly" value="处置类型" readonly />
               </div>
+              <div class="field">
+                <label for="documentStatus">单据状态</label>
+                <input id="documentStatus" class="readonly" value="已审核" readonly />
+              </div>
             </div>
           </div>
         </section>
@@ -327,15 +331,25 @@
         qtyInput.value = total;
       }
 
-      function getBoxSerialSummary(card) {
-        const rows = Array.from(card.querySelectorAll("[data-role='serialBody'] tr")).map((row, index) => {
-          const start = row.querySelector("[data-field='serialStart']").value;
-          const end = row.querySelector("[data-field='serialEnd']").value;
+      function getBoxSerialSummaryFromSerials(serials) {
+        const rows = serials.map((serial, index) => {
+          const start = serial.start || "";
+          const end = serial.end || "";
           const qty = getSerialCount(start, end);
           return { index: index + 1, start, end, qty };
         }).filter((item) => item.start || item.end);
-        if (!rows.length) return "点击查看箱序列号";
+        if (!rows.length) return "未录入箱序列号";
         return rows.map((item) => `${item.start || "-"}-${item.end || "-"}箱号`).join("；");
+      }
+
+      function getBoxSerialSummary(card) {
+        const serials = Array.from(card.querySelectorAll("[data-role='serialBody'] tr")).map((row) => {
+          const start = row.querySelector("[data-field='serialStart']").value;
+          const end = row.querySelector("[data-field='serialEnd']").value;
+          return { start, end };
+        });
+        const summary = getBoxSerialSummaryFromSerials(serials);
+        return summary === "未录入箱序列号" ? "点击查看箱序列号" : summary;
       }
 
       function openBoxModal(card) {
@@ -772,7 +786,7 @@
           </td>
           <td>${safeText(batch.batchCode || "-")}</td>
           <td>${safeText(batch.lotNo || "-")}</td>
-          <td>${safeText(getBoxSerialSummary(batch.boxSerials))}</td>
+          <td>${safeText(getBoxSerialSummaryFromSerials(batch.boxSerials))}</td>
           <td>${batch.isolateQty || 0} 箱</td>
           <td>${safeText(batch.isolateReason || "-")}</td>
           <td>
