@@ -211,10 +211,10 @@
             <div class="form-grid">
               <div class="field">
                 <label for="result"><span class="required">*</span>处置进度</label>
-                <select id="result">
+                <select id="result" class="readonly" disabled>
                   <option>待隔离</option>
                   <option selected>隔离中</option>
-                  <option>处置中</option>
+                  <option>返工中</option>
                   <option>处置完成</option>
                 </select>
               </div>
@@ -271,6 +271,31 @@
           </div>
         </div>
       </div>
+      <button class="annotation-fab" type="button" id="annotationFab">注释 <span id="annotationCount">0</span></button>
+      <aside class="annotation-panel" id="annotationPanel" aria-label="注释面板">
+        <div class="annotation-panel-header">
+          <div class="annotation-panel-title">页面注释</div>
+          <button class="btn ghost" type="button" id="closeAnnotationPanel">关闭</button>
+        </div>
+        <div class="annotation-panel-toolbar">
+          <span class="muted">点击注释可定位到页面元素</span>
+          <button class="btn primary" type="button" id="toggleAnnotationMode">开始标注</button>
+        </div>
+        <div class="annotation-panel-list" id="annotationList"></div>
+      </aside>
+      <div class="annotation-mode-tip" id="annotationModeTip" hidden>注释模式：点击需要标注的字段或区域</div>
+      <div id="annotationMarkerLayer"></div>
+      <div class="annotation-composer" id="annotationComposer">
+        <div class="annotation-composer-card">
+          <div class="annotation-panel-title" id="annotationComposerTitle">新增注释</div>
+          <div class="annotation-item-location" id="annotationLocation"></div>
+          <textarea id="annotationContent" placeholder="请输入注释内容"></textarea>
+          <div class="annotation-composer-actions">
+            <button class="btn" type="button" id="cancelAnnotation">取消</button>
+            <button class="btn primary" type="button" id="saveAnnotation">保存</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script>
@@ -284,8 +309,8 @@
           isolateReason: "空罐变形，顶盖划伤",
           conclusion: "隔离观察",
           issues: [
-            { machineTime: "08:45", materialBatch: "KG2026070108", palletNo: "TP-0108", factoryLine: "A线", supplier: "A供应商", problem: "罐身凹陷" },
-            { machineTime: "09:10", materialBatch: "DG2026070203", palletNo: "TP-0203", factoryLine: "B线", supplier: "B供应商", problem: "外观划伤" }
+            { machineTime: "08:45", materialBatch: "KG2026070108", factoryLine: "A线", supplier: "A供应商", problem: "罐身凹陷" },
+            { machineTime: "09:10", materialBatch: "DG2026070203", factoryLine: "B线", supplier: "B供应商", problem: "外观划伤" }
           ]
         },
         {
@@ -296,8 +321,8 @@
           isolateReason: "纸皮破损，空罐疑似混批",
           conclusion: "发起复核",
           issues: [
-            { machineTime: "10:20", materialBatch: "ZP2026070305", palletNo: "TP-0305", factoryLine: "C线", supplier: "C供应商", problem: "外箱纸皮破损" },
-            { machineTime: "10:45", materialBatch: "KG2026070109", palletNo: "TP-0109", factoryLine: "A线", supplier: "A供应商", problem: "批号疑似混用" }
+            { machineTime: "10:20", materialBatch: "ZP2026070305", factoryLine: "C线", supplier: "C供应商", problem: "外箱纸皮破损" },
+            { machineTime: "10:45", materialBatch: "KG2026070109", factoryLine: "A线", supplier: "A供应商", problem: "批号疑似混用" }
           ]
         }
       ];
@@ -529,13 +554,17 @@
         });
       }
 
+      function incrementLastNumber(value) {
+        if (!value) return "";
+        return value.replace(/(\d+)(?!.*\d)/, (match) => String(Number(match) + 1).padStart(match.length, "0"));
+      }
+
       function createIssueRow(issue = {}) {
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td><input class="readonly" data-field="issueNo" readonly /></td>
           <td><input data-field="machineTime" type="time" value="${issue.machineTime || ""}" /></td>
           <td><input data-field="materialBatch" value="${issue.materialBatch || ""}" placeholder="原厂批次" /></td>
-          <td><input data-field="palletNo" value="${issue.palletNo || ""}" placeholder="托盘号" /></td>
           <td><input data-field="factoryLine" value="${issue.factoryLine || ""}" placeholder="厂线" /></td>
           <td><input data-field="supplier" value="${issue.supplier || ""}" placeholder="供应商" /></td>
           <td><textarea data-field="problem" placeholder="问题描述">${issue.problem || ""}</textarea></td>
@@ -628,7 +657,6 @@
                     <th style="width: 70px;">序号</th>
                     <th style="width: 110px;">上机时间</th>
                     <th style="width: 150px;">原厂批次</th>
-                    <th style="width: 120px;">托盘号</th>
                     <th style="width: 100px;">厂线</th>
                     <th style="width: 130px;">供应商</th>
                     <th>问题描述</th>
@@ -673,7 +701,7 @@
         });
         card.querySelector("[data-action='copyBatch']").addEventListener("click", () => {
           const copied = readBatch(card);
-          copied.batchCode = `${copied.batchCode || "CP"}-COPY`;
+          copied.lotNo = incrementLastNumber(copied.lotNo);
           batchContainer.insertBefore(createBatchCard(copied), card.nextSibling);
           updateSummary();
         });
@@ -689,7 +717,6 @@
         const issues = Array.from(card.querySelectorAll("[data-role='issueBody'] tr")).map((row) => ({
           machineTime: row.querySelector("[data-field='machineTime']").value,
           materialBatch: row.querySelector("[data-field='materialBatch']").value.trim(),
-          palletNo: row.querySelector("[data-field='palletNo']").value.trim(),
           factoryLine: row.querySelector("[data-field='factoryLine']").value.trim(),
           supplier: row.querySelector("[data-field='supplier']").value.trim(),
           problem: row.querySelector("[data-field='problem']").value.trim()
@@ -960,6 +987,276 @@
 
       batches.forEach((batch) => batchContainer.appendChild(createBatchCard(batch)));
       updateSummary();
+    </script>
+    <script>
+      (() => {
+        const storageKey = `prototype-annotations:${location.pathname}`;
+        const panel = document.querySelector("#annotationPanel");
+        const list = document.querySelector("#annotationList");
+        const fab = document.querySelector("#annotationFab");
+        const count = document.querySelector("#annotationCount");
+        const modeButton = document.querySelector("#toggleAnnotationMode");
+        const modeTip = document.querySelector("#annotationModeTip");
+        const composer = document.querySelector("#annotationComposer");
+        const composerTitle = document.querySelector("#annotationComposerTitle");
+        const locationText = document.querySelector("#annotationLocation");
+        const content = document.querySelector("#annotationContent");
+        const markerLayer = document.querySelector("#annotationMarkerLayer");
+        const targetSelector = "label, input, select, textarea, button, th, .card-title, .batch-head";
+        let annotations = loadAnnotations();
+        let annotationMode = false;
+        let activeTargetKey = "";
+        let editingId = "";
+        let targetSequence = 0;
+
+        function loadAnnotations() {
+          try {
+            const saved = JSON.parse(localStorage.getItem(storageKey) || "[]");
+            return Array.isArray(saved) ? saved : [];
+          } catch (error) {
+            return [];
+          }
+        }
+
+        function persistAnnotations() {
+          try {
+            localStorage.setItem(storageKey, JSON.stringify(annotations));
+          } catch (error) {
+            showMessage("当前浏览器未允许本地保存，注释仅在本次打开期间有效。", "error");
+          }
+        }
+
+        function isAnnotationUi(element) {
+          return Boolean(element.closest(".annotation-panel, .annotation-fab, .annotation-composer, .annotation-marker"));
+        }
+
+        function ensureTargetKey(target) {
+          if (!target.dataset.annotationKey) {
+            targetSequence += 1;
+            target.dataset.annotationKey = `annotation-target-${targetSequence}`;
+          }
+          return target.dataset.annotationKey;
+        }
+
+        function registerTargets() {
+          document.querySelectorAll(targetSelector).forEach((target) => {
+            if (!isAnnotationUi(target)) {
+              ensureTargetKey(target);
+            }
+          });
+        }
+
+        function findTarget(targetKey) {
+          return document.querySelector(`[data-annotation-key="${targetKey}"]`);
+        }
+
+        function getTargetName(target) {
+          if (target.id) {
+            const label = document.querySelector(`label[for="${target.id}"]`);
+            if (label) return label.textContent.trim();
+          }
+          const text = target.textContent.trim();
+          if (text) return text.slice(0, 40);
+          if (target.placeholder) return target.placeholder;
+          if (target.value) return String(target.value).slice(0, 40);
+          return target.tagName.toLowerCase();
+        }
+
+        function setAnnotationMode(enabled) {
+          annotationMode = enabled;
+          modeButton.textContent = enabled ? "退出标注" : "开始标注";
+          modeButton.classList.toggle("primary", !enabled);
+          modeButton.classList.toggle("danger", enabled);
+          modeTip.hidden = !enabled;
+          document.querySelectorAll(".annotation-target-hover").forEach((target) => {
+            target.classList.remove("annotation-target-hover");
+          });
+        }
+
+        function openPanel() {
+          panel.classList.add("open");
+        }
+
+        function closePanel() {
+          panel.classList.remove("open");
+          setAnnotationMode(false);
+        }
+
+        function openComposer(targetKey, annotation) {
+          activeTargetKey = targetKey;
+          editingId = annotation ? annotation.id : "";
+          const target = findTarget(targetKey);
+          composerTitle.textContent = annotation ? "编辑注释" : "新增注释";
+          locationText.textContent = `标注位置：${annotation?.targetName || getTargetName(target)}`;
+          content.value = annotation?.content || "";
+          composer.classList.add("open");
+          content.focus();
+        }
+
+        function closeComposer() {
+          composer.classList.remove("open");
+          activeTargetKey = "";
+          editingId = "";
+          content.value = "";
+        }
+
+        function saveAnnotation() {
+          const value = content.value.trim();
+          if (!value) {
+            content.focus();
+            return;
+          }
+          const target = findTarget(activeTargetKey);
+          if (!target) {
+            closeComposer();
+            return;
+          }
+          const existing = annotations.find((item) => item.id === editingId);
+          if (existing) {
+            existing.content = value;
+            existing.updatedAt = new Date().toISOString();
+          } else {
+            annotations.push({
+              id: `annotation-${Date.now()}`,
+              targetKey: activeTargetKey,
+              targetName: getTargetName(target),
+              content: value,
+              createdAt: new Date().toISOString()
+            });
+          }
+          persistAnnotations();
+          closeComposer();
+          setAnnotationMode(false);
+          openPanel();
+          renderAnnotations();
+        }
+
+        function deleteAnnotation(id) {
+          annotations = annotations.filter((item) => item.id !== id);
+          persistAnnotations();
+          renderAnnotations();
+        }
+
+        function focusAnnotation(annotation) {
+          const target = findTarget(annotation.targetKey);
+          if (!target) return;
+          target.scrollIntoView({ behavior: "smooth", block: "center" });
+          target.classList.add("annotation-target-focus");
+          window.setTimeout(() => target.classList.remove("annotation-target-focus"), 1600);
+        }
+
+        function renderMarkers() {
+          markerLayer.innerHTML = "";
+          annotations.forEach((annotation, index) => {
+            const target = findTarget(annotation.targetKey);
+            if (!target) return;
+            const rect = target.getBoundingClientRect();
+            const marker = document.createElement("button");
+            marker.className = "annotation-marker";
+            marker.type = "button";
+            marker.textContent = index + 1;
+            marker.style.left = `${rect.right + window.scrollX - 11}px`;
+            marker.style.top = `${rect.top + window.scrollY - 11}px`;
+            marker.title = annotation.content;
+            marker.addEventListener("click", () => {
+              openPanel();
+              focusAnnotation(annotation);
+            });
+            markerLayer.appendChild(marker);
+          });
+        }
+
+        function createAnnotationItem(annotation, index) {
+          const item = document.createElement("article");
+          item.className = "annotation-item";
+          const head = document.createElement("div");
+          head.className = "annotation-item-head";
+          const itemIndex = document.createElement("span");
+          itemIndex.className = "annotation-item-index";
+          itemIndex.textContent = `#${index + 1}`;
+          const itemLocation = document.createElement("span");
+          itemLocation.className = "annotation-item-location";
+          itemLocation.textContent = annotation.targetName;
+          head.append(itemIndex, itemLocation);
+
+          const itemContent = document.createElement("div");
+          itemContent.className = "annotation-item-content";
+          itemContent.textContent = annotation.content;
+          itemContent.addEventListener("click", () => focusAnnotation(annotation));
+
+          const actions = document.createElement("div");
+          actions.className = "annotation-item-actions";
+          const time = document.createElement("span");
+          time.className = "annotation-item-time";
+          time.textContent = new Date(annotation.updatedAt || annotation.createdAt).toLocaleString("zh-CN", { hour12: false });
+          const buttons = document.createElement("div");
+          const editButton = document.createElement("button");
+          editButton.className = "btn ghost";
+          editButton.type = "button";
+          editButton.textContent = "编辑";
+          editButton.addEventListener("click", () => openComposer(annotation.targetKey, annotation));
+          const deleteButton = document.createElement("button");
+          deleteButton.className = "btn ghost";
+          deleteButton.type = "button";
+          deleteButton.textContent = "删除";
+          deleteButton.addEventListener("click", () => deleteAnnotation(annotation.id));
+          buttons.append(editButton, deleteButton);
+          actions.append(time, buttons);
+          item.append(head, itemContent, actions);
+          return item;
+        }
+
+        function renderAnnotations() {
+          list.innerHTML = "";
+          count.textContent = annotations.length;
+          if (!annotations.length) {
+            const empty = document.createElement("div");
+            empty.className = "annotation-empty";
+            empty.textContent = "暂无注释，点击“开始标注”后选择页面元素。";
+            list.appendChild(empty);
+          } else {
+            annotations.forEach((annotation, index) => {
+              list.appendChild(createAnnotationItem(annotation, index));
+            });
+          }
+          renderMarkers();
+        }
+
+        document.addEventListener("mouseover", (event) => {
+          if (!annotationMode || isAnnotationUi(event.target)) return;
+          const target = event.target.closest(targetSelector);
+          if (target) target.classList.add("annotation-target-hover");
+        });
+
+        document.addEventListener("mouseout", (event) => {
+          const target = event.target.closest(targetSelector);
+          if (target) target.classList.remove("annotation-target-hover");
+        });
+
+        document.addEventListener("click", (event) => {
+          if (!annotationMode || isAnnotationUi(event.target)) return;
+          const target = event.target.closest(targetSelector);
+          if (!target) return;
+          event.preventDefault();
+          event.stopPropagation();
+          registerTargets();
+          openComposer(ensureTargetKey(target));
+        }, true);
+
+        fab.addEventListener("click", openPanel);
+        document.querySelector("#closeAnnotationPanel").addEventListener("click", closePanel);
+        modeButton.addEventListener("click", () => setAnnotationMode(!annotationMode));
+        document.querySelector("#cancelAnnotation").addEventListener("click", closeComposer);
+        document.querySelector("#saveAnnotation").addEventListener("click", saveAnnotation);
+        composer.addEventListener("click", (event) => {
+          if (event.target === composer) closeComposer();
+        });
+        window.addEventListener("resize", renderMarkers);
+        window.addEventListener("scroll", renderMarkers, { passive: true });
+
+        registerTargets();
+        renderAnnotations();
+      })();
     </script>
   </body>
 </html>

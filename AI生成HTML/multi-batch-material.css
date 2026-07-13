@@ -513,6 +513,184 @@ tr:hover td {
   border-radius: 8px;
 }
 
+.annotation-fab {
+  position: fixed;
+  right: 24px;
+  bottom: 78px;
+  z-index: 30;
+  min-width: 92px;
+  height: 40px;
+  border: 0;
+  border-radius: 20px;
+  color: #fff;
+  background: #0f5bd8;
+  box-shadow: 0 6px 18px rgba(15, 91, 216, 0.28);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+}
+
+.annotation-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 31;
+  width: 360px;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-left: 1px solid #d8dee9;
+  box-shadow: -8px 0 24px rgba(15, 23, 42, 0.14);
+  transform: translateX(100%);
+  transition: transform 0.2s ease;
+}
+
+.annotation-panel.open {
+  transform: translateX(0);
+}
+
+.annotation-panel-header,
+.annotation-panel-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid #edf0f5;
+}
+
+.annotation-panel-title {
+  font-size: 16px;
+  font-weight: 650;
+}
+
+.annotation-panel-list {
+  flex: 1;
+  overflow: auto;
+  padding: 12px;
+}
+
+.annotation-empty {
+  padding: 36px 12px;
+  color: #6b7280;
+  text-align: center;
+}
+
+.annotation-item {
+  padding: 12px;
+  margin-bottom: 10px;
+  border: 1px solid #d8dee9;
+  border-radius: 7px;
+  background: #fff;
+}
+
+.annotation-item:hover {
+  border-color: #8bb7f3;
+  background: #f8fbff;
+}
+
+.annotation-item-head,
+.annotation-item-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.annotation-item-index {
+  color: #0f5bd8;
+  font-weight: 700;
+}
+
+.annotation-item-location,
+.annotation-item-time {
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.annotation-item-content {
+  margin: 8px 0 10px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+  cursor: pointer;
+}
+
+.annotation-marker {
+  position: absolute;
+  z-index: 15;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  color: #fff;
+  background: #f59e0b;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.25);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.annotation-target-hover {
+  outline: 2px dashed #f59e0b !important;
+  outline-offset: 3px;
+}
+
+.annotation-target-focus {
+  outline: 3px solid rgba(245, 158, 11, 0.8) !important;
+  outline-offset: 4px;
+}
+
+.annotation-mode-tip {
+  position: fixed;
+  top: 68px;
+  left: 50%;
+  z-index: 32;
+  padding: 8px 16px;
+  border-radius: 18px;
+  color: #92400e;
+  background: #fef3c7;
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.12);
+  transform: translateX(-50%);
+}
+
+.annotation-composer {
+  position: fixed;
+  inset: 0;
+  z-index: 33;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.35);
+}
+
+.annotation-composer.open {
+  display: flex;
+}
+
+.annotation-composer-card {
+  width: min(520px, 90vw);
+  padding: 18px;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 12px 36px rgba(15, 23, 42, 0.2);
+}
+
+.annotation-composer-card textarea {
+  height: 120px;
+  margin: 12px 0;
+}
+
+.annotation-composer-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 .wide {
   grid-column: span 2;
 }

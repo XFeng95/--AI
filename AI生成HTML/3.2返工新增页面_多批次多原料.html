@@ -238,8 +238,8 @@
           reworkQty: 60,
           scrapQty: 2,
           issues: [
-            { machineTime: "08:45", materialBatch: "KG2026070108", palletNo: "TP-0108", factoryLine: "A线", supplier: "A供应商", sourceProblem: "罐身凹陷" },
-            { machineTime: "09:10", materialBatch: "DG2026070203", palletNo: "TP-0203", factoryLine: "B线", supplier: "B供应商", sourceProblem: "外观划伤" }
+            { machineTime: "08:45", materialBatch: "KG2026070108", factoryLine: "A线", supplier: "A供应商", sourceProblem: "罐身凹陷" },
+            { machineTime: "09:10", materialBatch: "DG2026070203", factoryLine: "B线", supplier: "B供应商", sourceProblem: "外观划伤" }
           ]
         },
         {
@@ -252,8 +252,8 @@
           reworkQty: 80,
           scrapQty: 0,
           issues: [
-            { machineTime: "10:20", materialBatch: "ZP2026070305", palletNo: "TP-0305", factoryLine: "C线", supplier: "C供应商", sourceProblem: "外箱纸皮破损" },
-            { machineTime: "10:45", materialBatch: "KG2026070109", palletNo: "TP-0109", factoryLine: "A线", supplier: "A供应商", sourceProblem: "批号疑似混用" }
+            { machineTime: "10:20", materialBatch: "ZP2026070305", factoryLine: "C线", supplier: "C供应商", sourceProblem: "外箱纸皮破损" },
+            { machineTime: "10:45", materialBatch: "KG2026070109", factoryLine: "A线", supplier: "A供应商", sourceProblem: "批号疑似混用" }
           ]
         },
         {
@@ -266,8 +266,8 @@
           reworkQty: 46,
           scrapQty: 1,
           issues: [
-            { machineTime: "", materialBatch: "DG2026070204", palletNo: "", factoryLine: "", supplier: "B供应商", sourceProblem: "盖面压痕" },
-            { machineTime: "", materialBatch: "ZP2026070306", palletNo: "", factoryLine: "", supplier: "C供应商", sourceProblem: "喷码不清" }
+            { machineTime: "", materialBatch: "DG2026070204", factoryLine: "", supplier: "B供应商", sourceProblem: "盖面压痕" },
+            { machineTime: "", materialBatch: "ZP2026070306", factoryLine: "", supplier: "C供应商", sourceProblem: "喷码不清" }
           ]
         }
       ];
@@ -289,7 +289,6 @@
           <td><input class="readonly" data-field="issueNo" readonly /></td>
           <td><input class="readonly" data-field="machineTime" type="time" value="${issue.machineTime || ""}" readonly /></td>
           <td><input class="readonly" data-field="materialBatch" value="${issue.materialBatch || ""}" readonly /></td>
-          <td><input class="readonly" data-field="palletNo" value="${issue.palletNo || ""}" readonly /></td>
           <td><input class="readonly" data-field="factoryLine" value="${issue.factoryLine || ""}" readonly /></td>
           <td><input class="readonly" data-field="supplier" value="${issue.supplier || ""}" readonly /></td>
           <td><textarea class="readonly" data-field="sourceProblem" readonly>${issue.sourceProblem || ""}</textarea></td>
@@ -520,7 +519,6 @@
                     <th style="width:70px;">序号</th>
                     <th style="width:110px;">上机时间</th>
                     <th style="width: 150px;">原厂批次</th>
-                    <th style="width: 120px;">托盘号</th>
                     <th style="width: 100px;">厂线</th>
                     <th style="width: 126px;">供应商</th>
                     <th>问题描述</th>
@@ -555,7 +553,6 @@
         const issues = Array.from(card.querySelectorAll("[data-role='issueBody'] tr")).map((row) => ({
           machineTime: row.querySelector("[data-field='machineTime']").value,
           materialBatch: row.querySelector("[data-field='materialBatch']").value.trim(),
-          palletNo: row.querySelector("[data-field='palletNo']").value.trim(),
           factoryLine: row.querySelector("[data-field='factoryLine']").value.trim(),
           supplier: row.querySelector("[data-field='supplier']").value.trim(),
           sourceProblem: row.querySelector("[data-field='sourceProblem']").value.trim()
