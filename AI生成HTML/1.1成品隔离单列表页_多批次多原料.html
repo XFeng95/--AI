@@ -106,16 +106,6 @@
                 <input id="batchNo" placeholder="支持批次或批号查询" />
               </div>
               <div class="field">
-                <label for="materialName">涉及原料</label>
-                <select id="materialName">
-                  <option value="">全部</option>
-                  <option>空罐</option>
-                  <option>顶盖</option>
-                  <option>纸皮</option>
-                  <option>糖浆</option>
-                </select>
-              </div>
-              <div class="field">
                 <label for="dateRange">隔离日期</label>
                 <input id="dateRange" placeholder="2026-07-01 ~ 2026-07-06" />
               </div>
@@ -145,7 +135,6 @@
                   <th style="width: 110px;">隔离中批数</th>
                   <th style="width: 110px;">原料问题数</th>
                   <th style="width: 110px;">隔离总量（箱）</th>
-                  <th style="width: 170px;">涉及原料</th>
                   <th style="width: 90px;">隔离结果</th>
                   <th style="width: 90px;">单据状态</th>
                   <th style="width: 150px;">操作</th>
@@ -174,7 +163,6 @@
           isolatingBatchCount: 0,
           issueCount: 6,
           totalQty: 186,
-          materials: ["空罐", "顶盖", "纸皮"],
           batches: ["CP20260706001", "CP20260706002", "CP20260706003"],
           summary: "多批次发现空罐变形、顶盖划伤、纸皮破损，需按批次分别隔离并记录对应原料问题。",
           result: "待隔离",
@@ -190,7 +178,6 @@
           isolatingBatchCount: 0,
           issueCount: 3,
           totalQty: 92,
-          materials: ["空罐", "糖浆"],
           batches: ["CP20260706011", "CP20260706012"],
           summary: "同一发现事件涉及两批成品，分别对应空罐凹陷和糖浆批次记录异常。",
           result: "待隔离",
@@ -206,7 +193,6 @@
           isolatingBatchCount: 2,
           issueCount: 5,
           totalQty: 248,
-          materials: ["顶盖", "纸皮"],
           batches: ["CP20260705017", "CP20260705018", "CP20260705019", "CP20260705020"],
           summary: "连续批次存在顶盖批号混用风险，部分外箱纸皮喷码不清。",
           result: "隔离中",
@@ -222,7 +208,6 @@
           isolatingBatchCount: 0,
           issueCount: 2,
           totalQty: 44,
-          materials: ["空罐"],
           batches: ["CP20260704007"],
           summary: "单批次空罐卷封位置异常，已完成隔离确认。",
           result: "处置完成",
@@ -238,7 +223,6 @@
         line: document.querySelector("#line"),
         status: document.querySelector("#status"),
         batchNo: document.querySelector("#batchNo"),
-        materialName: document.querySelector("#materialName"),
         dateRange: document.querySelector("#dateRange")
       };
 
@@ -258,10 +242,8 @@
       function matchRecord(record) {
         const docNo = filters.docNo.value.trim();
         const batchNo = filters.batchNo.value.trim();
-        const materialName = filters.materialName.value;
         const dateRange = filters.dateRange.value.trim();
         const batchMatched = !batchNo || record.batches.some((item) => item.includes(batchNo));
-        const materialMatched = !materialName || record.materials.includes(materialName);
         const dateMatched = !dateRange || record.date.includes(dateRange) || dateRange.includes(record.date);
         return (
           (!docNo || record.docNo.includes(docNo)) &&
@@ -270,7 +252,6 @@
           (!filters.line.value || record.line === filters.line.value) &&
           (!filters.status.value || record.status === filters.status.value) &&
           batchMatched &&
-          materialMatched &&
           dateMatched
         );
       }
@@ -288,7 +269,6 @@
             <td><span class="tag ${record.isolatingBatchCount > 0 ? "warn" : "gray"}">${record.isolatingBatchCount} 批</span></td>
             <td><span class="tag warn">${record.issueCount} 条</span></td>
             <td>${record.totalQty} 箱</td>
-            <td>${record.materials.map((item) => `<span class="tag gray">${item}</span>`).join("")}</td>
             <td><span class="status ${getResultClass(record.result)}">${record.result}</span></td>
             <td><span class="status ${getStatusClass(record.status)}">${record.status}</span></td>
             <td>
