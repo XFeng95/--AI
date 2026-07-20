@@ -110,16 +110,6 @@
                 <label for="batchNo">返工批次/批号</label>
                 <input id="batchNo" placeholder="支持批次或批号查询" />
               </div>
-              <div class="field">
-                <label for="materialName">涉及原料</label>
-                <select id="materialName">
-                  <option value="">全部</option>
-                  <option>空罐</option>
-                  <option>顶盖</option>
-                  <option>纸皮</option>
-                  <option>糖浆</option>
-                </select>
-              </div>
             </div>
             <div class="actions">
               <button class="btn" type="button" id="resetBtn">重置</button>
@@ -146,7 +136,6 @@
                   <th style="width: 108px;">原料问题数</th>
                   <th style="width: 108px;">返工总箱数</th>
                   <th style="width: 108px;">返工总罐数</th>
-                  <th style="width: 154px;">涉及原料</th>
                   <th style="width: 86px;">单据状态</th>
                   <th style="width: 124px;">操作</th>
                 </tr>
@@ -174,7 +163,6 @@
           issueCount: 6,
           totalBoxQty: 186,
           totalQty: 186,
-          materials: ["空罐", "顶盖", "纸皮"],
           batches: ["CP20260706001", "CP20260706002", "CP20260706003"],
           progress: "返工中",
           status: "暂存"
@@ -189,7 +177,6 @@
           issueCount: 5,
           totalBoxQty: 248,
           totalQty: 248,
-          materials: ["顶盖", "纸皮"],
           batches: ["CP20260705017", "CP20260705018", "CP20260705019", "CP20260705020"],
           progress: "待返工",
           status: "待审核"
@@ -204,7 +191,6 @@
           issueCount: 3,
           totalBoxQty: 96,
           totalQty: 96,
-          materials: ["空罐", "糖浆"],
           batches: ["CP20260703011", "CP20260703012"],
           progress: "返工完成",
           status: "已审核"
@@ -219,8 +205,7 @@
         line: document.querySelector("#line"),
         status: document.querySelector("#status"),
         progress: document.querySelector("#progress"),
-        batchNo: document.querySelector("#batchNo"),
-        materialName: document.querySelector("#materialName")
+        batchNo: document.querySelector("#batchNo")
       };
 
       function getStatusClass(status) {
@@ -237,7 +222,6 @@
 
       function matchRecord(record) {
         const batchNo = filters.batchNo.value.trim();
-        const materialName = filters.materialName.value;
         return (
           (!filters.reworkNo.value.trim() || record.reworkNo.includes(filters.reworkNo.value.trim())) &&
           (!filters.sourceNo.value.trim() || record.sourceNo.includes(filters.sourceNo.value.trim())) &&
@@ -245,8 +229,7 @@
           (!filters.line.value || record.line === filters.line.value) &&
           (!filters.status.value || record.status === filters.status.value) &&
           (!filters.progress.value || record.progress === filters.progress.value) &&
-          (!batchNo || record.batches.some((item) => item.includes(batchNo))) &&
-          (!materialName || record.materials.includes(materialName))
+          (!batchNo || record.batches.some((item) => item.includes(batchNo)))
         );
       }
 
@@ -263,7 +246,6 @@
             <td><span class="tag warn">${record.issueCount} 条</span></td>
             <td>${record.totalBoxQty} 箱</td>
             <td>${record.totalQty} 罐</td>
-            <td>${record.materials.map((item) => `<span class="tag gray">${item}</span>`).join("")}</td>
             <td><span class="status ${getStatusClass(record.status)}">${record.status}</span></td>
             <td>
               <a class="btn ghost" href="3.2返工新增页面_多批次多原料.html?mode=view&reworkNo=${record.reworkNo}&source=${record.sourceNo}">详情</a>
@@ -272,7 +254,7 @@
           </tr>
         `).join("");
         if (!rows.length) {
-          tableBody.innerHTML = `<tr><td colspan="12"><div class="empty">暂无匹配数据</div></td></tr>`;
+          tableBody.innerHTML = `<tr><td colspan="11"><div class="empty">暂无匹配数据</div></td></tr>`;
         }
         document.querySelector("#recordInfo").textContent = `共 ${rows.length} 条`;
         document.querySelector("#runningCount").textContent = rows.filter((item) => item.progress === "返工中").length;
