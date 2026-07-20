@@ -159,7 +159,7 @@
               <span class="summary-item">返工批次：<strong id="sumBatch">0</strong></span>
               <span class="summary-item">返工箱数：<strong id="sumBoxQty">0</strong></span>
               <span class="summary-item">返工罐数：<strong id="sumReworkQty">0</strong></span>
-              <span class="summary-item">问题罐数：<strong id="sumProblemQty">0</strong></span>
+              <span class="summary-item">报废罐数：<strong id="sumScrapQty">0</strong></span>
               <span class="summary-item">缺失必填：<strong id="sumMissing">0</strong></span>
             </div>
           </div>
@@ -500,8 +500,12 @@
                 <input data-field="scrapQty" type="number" min="0" value="${batch.scrapQty || 0}" />
               </div>
               <div class="field">
+                <label>问题罐数</label>
+                <input data-field="problemQty" type="number" min="0" value="${batch.problemQty || 0}" />
+              </div>
+              <div class="field">
                 <label>其他问题罐数</label>
-                <input data-field="otherProblemQty" type="number" min="0" value="${batch.otherProblemQty || 0}" />
+                <input class="readonly" data-field="otherProblemQty" type="number" min="0" value="${batch.otherProblemQty || 0}" readonly />
               </div>
               <div style="display:none;">
                 <table>
@@ -539,6 +543,7 @@
         const serialBody = card.querySelector("[data-role='serialBody']");
         parseActualBoxSerials(batch.actualBox || "").forEach((serial) => serialBody.appendChild(createSerialRow(serial)));
         updateBoxFields(card);
+        updateProblemFields(card);
 
         card.querySelectorAll("input, select, textarea").forEach((field) => {
           field.addEventListener("input", updateSummary);
@@ -548,7 +553,14 @@
         return card;
       }
 
+      function updateProblemFields(card) {
+        const scrapQty = Number(card.querySelector("[data-field='scrapQty']").value || 0);
+        const problemQty = Number(card.querySelector("[data-field='problemQty']").value || 0);
+        card.querySelector("[data-field='otherProblemQty']").value = Math.max(scrapQty - problemQty, 0);
+      }
+
       function readBatch(card) {
+        updateProblemFields(card);
         const get = (field) => card.querySelector(`[data-field="${field}"]`).value.trim();
         const issues = Array.from(card.querySelectorAll("[data-role='issueBody'] tr")).map((row) => ({
           machineTime: row.querySelector("[data-field='machineTime']").value,
@@ -566,6 +578,7 @@
           boxQty: Number(get("boxQty") || 0),
           reworkQty: Number(get("reworkQty") || 0),
           scrapQty: Number(get("scrapQty") || 0),
+          problemQty: Number(get("problemQty") || 0),
           otherProblemQty: Number(get("otherProblemQty") || 0),
           issues
         };
@@ -591,12 +604,12 @@
         const list = readAllBatches();
         const boxQty = list.reduce((sum, item) => sum + item.boxQty, 0);
         const reworkQty = list.reduce((sum, item) => sum + item.reworkQty, 0);
-        const problemQty = list.reduce((sum, item) => sum + item.otherProblemQty, 0);
+        const scrapQty = list.reduce((sum, item) => sum + item.scrapQty, 0);
         const missing = list.reduce((sum, item) => sum + validateBatch(item), 0);
         document.querySelector("#sumBatch").textContent = list.length;
         document.querySelector("#sumBoxQty").textContent = boxQty;
         document.querySelector("#sumReworkQty").textContent = reworkQty;
-        document.querySelector("#sumProblemQty").textContent = problemQty;
+        document.querySelector("#sumScrapQty").textContent = scrapQty;
         document.querySelector("#sumMissing").textContent = missing;
         document.querySelectorAll(".batch-card").forEach((card, index) => {
           const batch = readBatch(card);
